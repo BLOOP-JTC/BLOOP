@@ -21,6 +21,8 @@ python3 runStages.py --loopOrder 1 \
                         --TRangeStepSize 2 \
                         --bPool  
 
+diff IntegrationTests/Pool/OutputResult/BM_1.json IntegrationTests/Pool/ReferenceResult/BM_1.json
+
 echo Running code at NLO with cython...
 python3 runStages.py --loopOrder 1 \
                         --firstBenchmark 1 \
