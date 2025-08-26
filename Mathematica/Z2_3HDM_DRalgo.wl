@@ -4,13 +4,8 @@
 (*Import DRalgo and Group Math*)
 
 
-ClearAll[]
 SetDirectory[NotebookDirectory[]];
-$LoadGroupMath=True;
-(* This is pointing to my DRalgo repo for easier updating *)
-(* TODO move to DRalgo 1.3 *)
-pathToDRalgo = "/home/jasmine/.Mathematica/Applications/DRalgo/DRalgo.m"
-Get[pathToDRalgo]
+<<DRalgo`DRalgo`
 
 
 (* ::Subsection:: *)
@@ -44,7 +39,7 @@ lam33*(\[Lambda]12 + min[0, \[Lambda]12p - 2*Sqrt[\[Lambda]1Re^2 + \[Lambda]1Im^
 
 
 (* ::Section::Closed:: *)
-(*Model\[AliasDelimiter]*)
+(*Model*)
 
 
 (*See 1909.09234 [hep-ph], eq (1) *)
