@@ -20,7 +20,7 @@ Get["MathematicaToPythonHelper.m"]
 
 
 hardToSoftDirectory = "DRalgoOutput/Z2_3HDM/HardToSoft";
-softToUltrasoftDirectory = "DRalgoOutput/Z2_3HDM/SoftToUltrasoft";
+softToUltrasoftDirectory = "DRalgoOutput/Z2_3HDM/SoftToUltraSoft";
 effectivePotentialDirectory = "DRalgoOutput/Z2_3HDM/EffectivePotential";
 variables = "DRalgoOutput/Z2_3HDM/Variables";
 misc = "DRalgoOutput/Z2_3HDM/Misc";
@@ -350,8 +350,7 @@ exportUTF8[effectivePotentialDirectory<>"/scalarMassMatrix_bottomRight_definitio
 blockSize = 6;
 (** Diagonalizing rotation, this will be SO(N) with N=12. But we know a permutation transformation to reduce it to two SO(6) matrices,
 so we first construct the two SO(6) and apply the inverse permutation. 
-There's no easy way of generating a symbolic orthogonal matrix so just use a generic 6x6
-This was done before DRalgo's fast rotate mode -TODO investigate fast rotate **)
+There's no easy way of generating a symbolic orthogonal matrix so just use a generic 6x6 **)
 rotUpperLeft = Table[ toIndexedSymbol2[ "RUL", i, j, Total[DigitCount[blockSize]] ], {i, 1, blockSize}, {j, 1, blockSize}];
 rotBottomRight = Table[ toIndexedSymbol2[ "RBR", i, j, Total[DigitCount[blockSize]] ], {i, 1, blockSize}, {j, 1, blockSize}];
 
@@ -385,34 +384,33 @@ ScalarMassDiag = DiagonalMatrix[ Table[toIndexedSymbol["MSsq", i, Total[DigitCou
 
 
 (* ::Text:: *)
-(*This is mostly hardcoded these for now. The diagonalization is identical to the Standard Model case*)
+(*We can analytically diagonalise the SM gauge group so we do that. *)
+(*We currently do not support gauge groups that cannot be diagonalised symbolically.*)
+(*This is because its slower than than the symbolically diagonalised case and just not needed in our research. We could add a mode to handle numerically diagonalising the gauge sector like we do the scalar sector should there be demand. *)
 
 
-VectorMassMatrix = PrintTensorsVEV[2]//Normal;
 vectorN = 12; (* SU3 x SU2 x U1 *)
+VectorMassMatrix = PrintTensorsVEV[2]//Normal;
 
-(** Take the only nontrivial 2x2 submatrix and diagonalize that **) 
-VectorMassMatrixNontrivial = VectorMassMatrix[[11;;12,11;;12]];
+(** Take the only nontrivial 4x4 submatrix and diagonalize that **) 
+VectorMassMatrixNontrivial = VectorMassMatrix[[9;;12,9;;12]];
 {VectorEigenvalues, VectorEigenvectors} = Eigensystem[VectorMassMatrixNontrivial];
-VectorEigenvectors = FullSimplify[ Normalize /@ VectorEigenvectors, Assumptions -> {g3>0, g2>0, g1>0}];
 
-(** Diagonalizing rotation: **)
-DVRot = ArrayFlatten[{
-	{IdentityMatrix[10], 0, 0},
-	{0, 0, VectorEigenvectors}
-}];
+VectorEigenvectorsSimp = Simplify[ Normalize /@ VectorEigenvectors, Assumptions -> {g3>0, g2>0, g1>0}];
+VectorEigenvaluesSimp = Simplify[ VectorEigenvalues, Assumptions -> {g3>0, g2>0, g1>0}];
 
-(* Eigenvalues in correct order. Just pick diagonals from the original mass matrix, then replace the ones we had to diagonalize manually  *)
-VectorMassDiag = Table[ If[i==j, VectorMassMatrix[[i,i]], 0], {i, 1, 12}, {j, 1, 12}] //Simplify;
-VectorMassDiag[[11,11]] = VectorEigenvalues[[1]];
-VectorMassDiag[[12,12]] = VectorEigenvalues[[2]];
+(** Diagonalizing rotation and resulting eigenvalues: **)
+(*Blockdiagonal matrices are weird (e.g. sub rules don't work), take normal*)
+DVRot = Normal[BlockDiagonalMatrix[{IdentityMatrix[8],VectorEigenvectorsSimp}]];
+VectorMassDiag=Normal[BlockDiagonalMatrix[{ConstantArray[0,{8,8}], DiagonalMatrix[VectorEigenvalues]}]];
 
 Print["Diagonalized vector mass matrix:"];
-VectorMassDiag // MatrixForm;
+VectorMassDiag // MatrixForm
+
 
 (** Simplify with easier symbols **)
 gaugeRotationSubst = {g1/Sqrt[g1^2+g2^2] -> stW, g2/Sqrt[g1^2+g2^2] -> ctW};
-DVRot = DVRot /. gaugeRotationSubst;
+DVRotSimp = DVRot /. gaugeRotationSubst;
 
 vectorShorthands = {stW-> g1/Sqrt[g1^2+g2^2], ctW-> g2/Sqrt[g1^2+g2^2]};
 
@@ -431,7 +429,7 @@ exportUTF8[effectivePotentialDirectory<>"/vectorShorthands.txt", vectorShorthand
 It's because our scalar rotation matrix is so large. **)
 AbsoluteTiming[
 	(** Tell DRalgo to rotate the fields to mass diagonal basis **)
-	RotateTensorsCustomMass[DSRot,DVRot,ScalarMassDiag,VectorMassDiagSimple, FastRotation-> True];
+	RotateTensorsCustomMass[DSRot,DVRotSimp,ScalarMassDiag,VectorMassDiagSimple, FastRotation-> True];
 	CalculatePotentialUS[]
 ]
 
@@ -441,7 +439,6 @@ veffNLO = PrintEffectivePotential["NLO"]//Simplify; (* Simplify to factor 1/pi d
 veffNNLO = PrintEffectivePotential["NNLO"]; (* NOT simplified as seems to change numerical result for unknown reasons *)
 
 
-(*Done for consistent in out structure for python*)
 exportUTF8[effectivePotentialDirectory<>"/Veff_LO.txt", veffLO];
 exportUTF8[effectivePotentialDirectory<>"/Veff_NLO.txt", veffNLO];
 exportUTF8[effectivePotentialDirectory<>"/Veff_NNLO.txt", veffNNLO];
