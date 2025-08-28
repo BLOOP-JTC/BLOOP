@@ -173,6 +173,7 @@ def generate_lo_submodule(name, filename, lo_file, allSymbols):
         # Function imports used by Veff
         file.write('# cython: cdivision=False\n')
         file.write('# cython: profile=True\n')
+        file.write('# cython: optimize.unpack_method_calls=True\n')
         file.write('from libc.complex cimport csqrt\n')
         file.write('from libc.complex cimport clog\n')
         file.write('from libc.math cimport M_PI\n')
