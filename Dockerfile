@@ -18,3 +18,5 @@ RUN pip install --no-cache-dir Cython
 RUN pip install --no-cache-dir Setuptools
 RUN pip install --no-cache-dir jinja2
 RUN pip install --no-cache-dir line_profiler
+RUN apt update
+RUN apt install clang -y 
