@@ -6,7 +6,7 @@ build/
 *.spyproject
 
 **/OutputResult/*
-Mathematica/DRalgoOutput
+Mathematica/*
 Testing
 Results
 src/Benchmarks/**
