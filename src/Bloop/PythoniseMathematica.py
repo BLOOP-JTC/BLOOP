@@ -214,6 +214,10 @@ def pythoniseMathematica(args):
             "lagranianVariables": getLinesJSON(args.lagranianVariablesFile),
             "fileName": args.lagranianVariablesFile 
             },
+        "scalarMassNames": {
+            "scalarMassNames": getLines(args.scalarMassNamesFile),
+            "fileName": args.scalarMassNamesFile 
+            }
     }
 
     expressionDict["scalarPermutationMatrix"] = (

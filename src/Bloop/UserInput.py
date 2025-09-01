@@ -304,6 +304,12 @@ class UserInput(argparse.ArgumentParser):
             action="store",
             default="Data/Z2_3HDM/ModelFiles/Variables/LagranianSymbols.json",
         )
+        
+        self.add_argument(
+            "--scalarMassNamesFile",
+            action="store",
+            default="Data/Z2_3HDM/ModelFiles/Variables/ScalarMassNames.txt",
+        )
 
         self.add_argument(
             "--pythonisedExpressionsFile",

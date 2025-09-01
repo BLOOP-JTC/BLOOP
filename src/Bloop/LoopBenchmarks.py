@@ -100,6 +100,7 @@ def setUpTrackVEV(args):
 
     allSymbols = pythonisedExpressions["allSymbols"]["allSymbols"]
     lagranianVariables = pythonisedExpressions["lagranianVariables"]["lagranianVariables"]
+    scalarMassNames = pythonisedExpressions["scalarMassNames"]["scalarMassNames"]
 
     nloptInst = cNlopt(
         config={
@@ -151,7 +152,8 @@ def setUpTrackVEV(args):
             pythonisedExpressions["scalarRotationMatrix"]["fileName"],
         ),
         allSymbols,
-        veffArray
+        veffArray,
+        scalarMassNames
     )
 
     fourPointSymbols = [

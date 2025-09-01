@@ -70,7 +70,8 @@ class EffectivePotential:
         scalarMassMatrices,
         scalarRotationMatrix,
         allSymbols,
-        veffArray
+        veffArray,
+        scalarMassNames
     ):
         self.fieldNames = fieldNames
 
@@ -92,9 +93,13 @@ class EffectivePotential:
 
         self.allSymbols = allSymbols
         self.veffArray = veffArray
+        
         if not veffArray:
             from .Veff import Veff
             self.Veff = Veff
+        
+        self.scalarMassNames = scalarMassNames
+        
     def findGlobalMinimum(self, T, params3D, minimumCandidates):
         """For physics reasons we only minimise the real part,
         for nlopt reasons we need to give a redunant grad arg"""
@@ -115,7 +120,6 @@ class EffectivePotential:
 
     def evaluatePotential(self, fields, T, params3D):
         paramsDict = self.computeMasses(fields, T, params3D)
-        
         params = [paramsDict[key] if key in paramsDict else 0 for key in self.allSymbols]
 
         if self.veffArray:
@@ -172,6 +176,16 @@ class EffectivePotential:
             "MSsq11",
             "MSsq12",
         ]
+        # for i, e in enumerate(self.scalarMassNames[0]):
+        #     print(e, massNames[0][i], e== massNames[0][i])
+        #     input()
+        # for ele in self.scalarMassNames[0]:
+        #     print(ele)
+        # for ele in massNames[0]:
+        #     print(ele)
+        # exit()
+
+        
         return params3D | {
             name: float(msq) for name, msq in zip(massNames, chain(*subEigenValues))
         }
