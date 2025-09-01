@@ -167,7 +167,7 @@ class UserInput(argparse.ArgumentParser):
         self.add_argument(
             "--benchmarkFile",
             action="store",
-            default="ThreeHiggs/Data/Z2_3HDM/Benchmarks/handPicked.json",
+            default="Bloop/Data/Z2_3HDM/Benchmarks/handPicked.json",
         )
 
         self.add_argument(
