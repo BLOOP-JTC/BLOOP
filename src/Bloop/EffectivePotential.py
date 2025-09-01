@@ -153,6 +153,9 @@ class EffectivePotential:
             subRotationMatrix = self.scalarPermutationMatrix @ linalg.block_diag(
                 *subRotationMatrix
             )
+        else:
+            subRotationMatrix=subRotationMatrix[0]
+            
         params3D |= self.scalarRotationMatrix.evaluate(subRotationMatrix)
         ##TODO load names from mathematica
         massNames = [
