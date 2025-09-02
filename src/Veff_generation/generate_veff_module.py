@@ -17,21 +17,20 @@ def generate_veff_module(args, allSymbols):
     
     loopOrder = args.loopOrder 
     
-    name = 'lo'
-    lo_file  = os.path.join(data_dir, args.loFile)
-    filename = os.path.join(module_dir, 'lo.pyx')
-    generate_lo_submodule(name, filename, lo_file, allSymbols)
+    veffFPs   = [args.loFile, args.nloFile]
+    veffNames = ["lo", "nlo"]
     
-    name     = 'nlo'
-    nlo_file = os.path.join(data_dir, args.nloFile)
-    filename = os.path.join(module_dir, 'nlo.pyx')
-    generate_lo_submodule(name, filename, nlo_file, allSymbols)
-    if loopOrder > 1:
-        name = 'nnlo'
-        nnlo_file = os.path.join(data_dir, args.nnloFile)
-        filename  = os.path.join(module_dir, 'nnlo.pyx')
-        generate_lo_submodule(name, filename, nnlo_file, allSymbols)
-
+    if loopOrder >1:
+        veffFPs.append(args.nnloFile)
+        veffNames.append("nnlo")
+    
+    for idx, name in enumerate(veffNames):
+        generateVeffSubModule(
+            name, 
+            os.path.join(module_dir, f"{name}.pyx"), 
+            os.path.join(data_dir, veffFPs[idx]), 
+            allSymbols
+        )
     
     #================================== Veff =================================#
     filename = os.path.join(module_dir, 'veff.py')
@@ -140,7 +139,7 @@ def write_veff_params_function(file, allSymbols):
         file.write(f'        params["{param}"],\n')
     file.write('    )\n')
 
-def generate_lo_submodule(name, filename, lo_file, allSymbols):
+def generateVeffSubModule(name, moduleName, veffFp, allSymbols):
     """Creates a cython module with a function that evaluates an expression for
     Veff. 
     
@@ -149,10 +148,10 @@ def generate_lo_submodule(name, filename, lo_file, allSymbols):
     array of parameters that appear in the expression.
     """
         
-    lines = read_lines(lo_file)
+    lines = read_lines(veffFp)
     params, signs, terms = get_terms(lines)
     
-    with open(filename, 'w') as file:
+    with open(moduleName, 'w') as file:
         # Function imports used by Veff
         file.write('# cython: cdivision=False\n')
         file.write('from libc.complex cimport csqrt\n')
