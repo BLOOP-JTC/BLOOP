@@ -70,7 +70,8 @@ class EffectivePotential:
         scalarMassMatrices,
         scalarRotationMatrix,
         allSymbols,
-        veffArray
+        veffArray,
+        scalarMassNames
     ):
         self.fieldNames = fieldNames
 
@@ -92,9 +93,13 @@ class EffectivePotential:
 
         self.allSymbols = allSymbols
         self.veffArray = veffArray
+        
         if not veffArray:
             from .Veff import Veff
             self.Veff = Veff
+        
+        self.scalarMassNames = scalarMassNames
+        
     def findGlobalMinimum(self, T, params3D, minimumCandidates):
         """For physics reasons we only minimise the real part,
         for nlopt reasons we need to give a redunant grad arg"""
@@ -115,7 +120,6 @@ class EffectivePotential:
 
     def evaluatePotential(self, fields, T, params3D):
         paramsDict = self.computeMasses(fields, T, params3D)
-        
         params = [paramsDict[key] if key in paramsDict else 0 for key in self.allSymbols]
 
         if self.veffArray:
@@ -131,7 +135,6 @@ class EffectivePotential:
         params3D = self.vectorMassesSquared.evaluate(params3D)
         ## diagonalizeScalars doesn't take array (yet) so convert to dict
         params3D = {key: value for (key, value) in zip(self.allSymbols, params3D)}
-
         return self.diagonalizeScalars(params3D, T)
     
     def diagonalizeScalars(self, params3D, T):
@@ -153,24 +156,13 @@ class EffectivePotential:
             subRotationMatrix = self.scalarPermutationMatrix @ linalg.block_diag(
                 *subRotationMatrix
             )
+        else:
+            subRotationMatrix=subRotationMatrix[0]
+            
         params3D |= self.scalarRotationMatrix.evaluate(subRotationMatrix)
-        ##TODO load names from mathematica
-        massNames = [
-            "MSsq01",
-            "MSsq02",
-            "MSsq03",
-            "MSsq04",
-            "MSsq05",
-            "MSsq06",
-            "MSsq07",
-            "MSsq08",
-            "MSsq09",
-            "MSsq10",
-            "MSsq11",
-            "MSsq12",
-        ]
+
         return params3D | {
-            name: float(msq) for name, msq in zip(massNames, chain(*subEigenValues))
+            name: float(msq) for name, msq in zip(self.scalarMassNames, chain(*subEigenValues))
         }
 
     ##Jasmine plotting tools

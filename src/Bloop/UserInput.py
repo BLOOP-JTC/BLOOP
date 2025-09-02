@@ -138,8 +138,6 @@ class UserInput(argparse.ArgumentParser):
                 [0.1, 0.1, 0.1],
                 [5, 5, 5],
                 [-5, 5, 5],
-                [5, 5, 5],
-                [-5, 5, 5],
                 [0.1, 0.1, 10],
                 [0.1, 0.1, 20],
                 [40, 40, 40],
@@ -167,7 +165,7 @@ class UserInput(argparse.ArgumentParser):
         self.add_argument(
             "--benchmarkFile",
             action="store",
-            default="ThreeHiggs/Data/Z2_3HDM/Benchmarks/handPicked.json",
+            default="Bloop/Data/Z2_3HDM/Benchmarks/handPicked.json",
         )
 
         self.add_argument(
@@ -305,6 +303,12 @@ class UserInput(argparse.ArgumentParser):
             "--lagranianVariablesFile",
             action="store",
             default="Data/Z2_3HDM/ModelFiles/Variables/LagranianSymbols.json",
+        )
+        
+        self.add_argument(
+            "--scalarMassNamesFile",
+            action="store",
+            default="Data/Z2_3HDM/ModelFiles/Variables/ScalarMassNames.json",
         )
 
         self.add_argument(
