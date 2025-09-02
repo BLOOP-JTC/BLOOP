@@ -198,6 +198,12 @@ class UserInput(argparse.ArgumentParser):
             action="store",
             default="Bloop.Z2_ThreeHiggsBmGenerator",
         )
+        
+        self.add_argument(
+            "--plotDataFile",
+            action="store",
+            default="Bloop.PlotData",
+        )
 
         self.add_argument(
             "--boundedConditions",

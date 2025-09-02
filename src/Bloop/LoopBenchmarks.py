@@ -3,10 +3,10 @@ import decimal
 from pathlib import Path
 from pathos.multiprocessing import Pool
 from ijson import items
+from importlib import import_module
 
 from Bloop.TransitionFinder import TrackVEV
 from Bloop.EffectivePotential import EffectivePotential, cNlopt
-from Bloop.PlotResult import plotData
 from Bloop.ProcessMinimization import interpretData
 from Bloop.PythoniseMathematica import replaceGreekSymbols
 from Bloop.ParsedExpression import (
@@ -52,7 +52,7 @@ def doBenchmark(trackVEV, args, benchmark, fieldNames):
         if args.verbose:
             print(f"Plotting {benchmark['bmNumber']}")
 
-        plotData(minimizationResult, benchmark["bmNumber"], args.loopOrder, filename)
+        import_module(args.plotDataFile).plotData(minimizationResult, filename, fieldNames)
 
     if args.bProcessMin:
         if args.verbose:
