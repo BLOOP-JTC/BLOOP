@@ -6,6 +6,7 @@ from .mathematica_parsing import read_lines, get_terms
 import Bloop.PythoniseMathematica as PythoniseMathematica
 
 def generate_veff_module(args, allSymbols):
+    
     parent_dir = os.path.dirname(os.getcwd())
     data_dir   = os.path.join(parent_dir, 'src', 'Bloop')
     module_dir = os.path.join(parent_dir, 'src', 'Bloop', 'Veff')
@@ -23,7 +24,7 @@ def generate_veff_module(args, allSymbols):
     if loopOrder >1:
         veffFPs.append(args.nnloFile)
         veffNames.append("nnlo")
-    
+        
     for idx, name in enumerate(veffNames):
         generateVeffSubModule(
             name, 
@@ -96,8 +97,6 @@ def write_veff_function(file, loopOrder, allSymbols):
     # Function name and input
     file.write('def Veff(\n')
     
-    allSymbols = [convert_to_cython_syntax(symbol) for symbol in allSymbols]
-    
     for symbol in allSymbols:
         file.write(f'    {symbol} = 1,\n')
     
@@ -133,9 +132,7 @@ def write_veff_params_function(file, allSymbols):
     """
     file.write('def Veff_params(params):\n')
     file.write('    return (\n')
-
     for param in allSymbols:
-        param = convert_to_cython_syntax(param)
         file.write(f'        params["{param}"],\n')
     file.write('    )\n')
 
@@ -150,7 +147,6 @@ def generateVeffSubModule(name, moduleName, veffFp, allSymbols):
         
     lines = read_lines(veffFp)
     params, signs, terms = get_terms(lines)
-    
     with open(moduleName, 'w') as file:
         # Function imports used by Veff
         file.write('# cython: cdivision=False\n')
@@ -163,28 +159,26 @@ def generateVeffSubModule(name, moduleName, veffFp, allSymbols):
         file.write(f'cpdef double complex {name}(\n')
         
         for param in allSymbols:
-            param = convert_to_cython_syntax(param)
             file.write(f'    double complex {param},\n')
         
         file.write('    ):\n')
+        ## Calling _name maybe increases perfomance, within noise if it does
         file.write(f'    return _{name}(\n')
         for param in allSymbols:
-            param = convert_to_cython_syntax(param)
             file.write(f'        {param},\n')
         file.write('    )\n\n\n')
         
         file.write(f'cdef double complex _{name}(\n')
         
         for param in allSymbols:
-            param = convert_to_cython_syntax(param)
             file.write(f'    double complex {param},\n')
         
         file.write('    ):\n')
         
         # Function body
         file.write('    cdef double complex a = 0.0\n')
-        
         term = convert_to_cython_syntax(terms[0])
+        ## How do we know term[0] is +?
         file.write(f'    a += {term}\n')
         
         for sign, term in zip(signs, terms[1:]):
