@@ -164,8 +164,6 @@ def generate_lo_submodule(name, filename, lo_file, allSymbols):
     together. The sign of each term should be in `signs` and `params` is an 
     array of parameters that appear in the expression.
     """
-    if os.path.exists(filename):
-        os.remove(filename)
         
     lines = read_lines(lo_file)
     params, signs, terms = get_terms(lines)
