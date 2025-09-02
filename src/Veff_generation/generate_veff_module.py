@@ -2,6 +2,7 @@ import os
 import numpy as np
 
 from .mathematica_parsing import read_lines, get_terms
+import Bloop.PythoniseMathematica as PythoniseMathematica
 
 def generate_veff_module(args, allSymbols):
     parent_dir = os.path.dirname(os.getcwd())
@@ -220,12 +221,9 @@ def generate_lo_submodule(name, filename, lo_file, allSymbols):
 
 def convert_to_cython_syntax(term):
     term = term.replace('Sqrt', 'csqrt')
-    term = term.replace('Pi', 'M_PI')
     term = term.replace('Log', 'clog')
     term = term.replace('[', '(')
     term = term.replace(']', ')')
     term = term.replace('^', '**')
-    term = term.replace('λ', 'lam')
-    term = term.replace('μ', 'mu')
-
-    return term
+    term = PythoniseMathematica.replaceSymbolsConst(term)
+    return PythoniseMathematica.replaceGreekSymbols(term)
