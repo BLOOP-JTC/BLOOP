@@ -215,7 +215,7 @@ def pythoniseMathematica(args):
             "fileName": args.lagranianVariablesFile 
             },
         "scalarMassNames": {
-            "scalarMassNames": getLines(args.scalarMassNamesFile),
+            "scalarMassNames": getLinesJSON(args.scalarMassNamesFile),
             "fileName": args.scalarMassNamesFile 
             }
     }

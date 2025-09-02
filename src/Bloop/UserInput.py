@@ -308,7 +308,7 @@ class UserInput(argparse.ArgumentParser):
         self.add_argument(
             "--scalarMassNamesFile",
             action="store",
-            default="Data/Z2_3HDM/ModelFiles/Variables/ScalarMassNames.txt",
+            default="Data/Z2_3HDM/ModelFiles/Variables/ScalarMassNames.json",
         )
 
         self.add_argument(

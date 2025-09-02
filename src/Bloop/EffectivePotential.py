@@ -135,7 +135,6 @@ class EffectivePotential:
         params3D = self.vectorMassesSquared.evaluate(params3D)
         ## diagonalizeScalars doesn't take array (yet) so convert to dict
         params3D = {key: value for (key, value) in zip(self.allSymbols, params3D)}
-
         return self.diagonalizeScalars(params3D, T)
     
     def diagonalizeScalars(self, params3D, T):
@@ -161,33 +160,9 @@ class EffectivePotential:
             subRotationMatrix=subRotationMatrix[0]
             
         params3D |= self.scalarRotationMatrix.evaluate(subRotationMatrix)
-        ##TODO load names from mathematica
-        massNames = [
-            "MSsq01",
-            "MSsq02",
-            "MSsq03",
-            "MSsq04",
-            "MSsq05",
-            "MSsq06",
-            "MSsq07",
-            "MSsq08",
-            "MSsq09",
-            "MSsq10",
-            "MSsq11",
-            "MSsq12",
-        ]
-        # for i, e in enumerate(self.scalarMassNames[0]):
-        #     print(e, massNames[0][i], e== massNames[0][i])
-        #     input()
-        # for ele in self.scalarMassNames[0]:
-        #     print(ele)
-        # for ele in massNames[0]:
-        #     print(ele)
-        # exit()
 
-        
         return params3D | {
-            name: float(msq) for name, msq in zip(massNames, chain(*subEigenValues))
+            name: float(msq) for name, msq in zip(self.scalarMassNames, chain(*subEigenValues))
         }
 
     ##Jasmine plotting tools

@@ -388,7 +388,7 @@ exportUTF8[effectivePotentialDirectory<>"/scalarRotationMatrix.txt", DSRot];
 ScalarMassDiag = DiagonalMatrix[ Table[toIndexedSymbol["MSsq", i, Total[DigitCount[12]]], {i, 1, 12}] ];
 
 
-exportUTF8[variables<>"/ScalarMassNames.txt", extractSymbols[ScalarMassDiag]];
+exportUTF8[variables<>"/ScalarMassNames.json", extractSymbols[ScalarMassDiag]];
 
 
 (* ::Subsection:: *)
@@ -495,8 +495,7 @@ equationSymbols={
 	"LO"->extractSymbols[veffLO],
 	"NLO"-> extractSymbols[veffNLO],
 	"NNLO"-> extractSymbols[veffNNLO],
-	"rotationSymbols"->extractSymbols[DSRot],
-	"scalarMassNames"->extractSymbols[ScalarMassDiag]};
+	"rotationSymbols"->extractSymbols[DSRot]};
 
 
 exportUTF8[variables<>"/EquationSymbols.json", equationSymbols];
