@@ -32,9 +32,11 @@ def generate_veff_module(args, allSymbols):
             allSymbols
         )
     
-    #================================== Veff =================================#
-    filename = os.path.join(module_dir, 'veff.py')
-    generate_veff_submodule(filename, loopOrder, allSymbols)
+    generateCombinedVeffSubModules(
+        os.path.join(module_dir, 'veff.py'), 
+        loopOrder, 
+        allSymbols
+    )
     
     #================================ init file ==============================#
     with open(os.path.join(module_dir, '__init__.py'), 'w') as file:
@@ -65,7 +67,7 @@ def generate_veff_module(args, allSymbols):
             """
         )).render(args = args))
         
-def generate_veff_submodule(filename, loopOrder, allSymbols):
+def generateCombinedVeffSubModules(filename, loopOrder, allSymbols):
     """Creates a submodule with Veff and Veff_params functions (see below).
     """
     if os.path.exists(filename):
@@ -94,30 +96,28 @@ def write_veff_function(file, loopOrder, allSymbols):
     # Function name and input
     file.write('def Veff(\n')
     
-    for param in allSymbols:
-        param = convert_to_cython_syntax(param)
-        file.write(f'    {param} = 1,\n')
+    allSymbols = [convert_to_cython_syntax(symbol) for symbol in allSymbols]
+    
+    for symbol in allSymbols:
+        file.write(f'    {symbol} = 1,\n')
     
     file.write('    ):\n')
     
     # Function body
     file.write('    val_lo = lo(\n')
-    for param in allSymbols:
-        param = convert_to_cython_syntax(param)
-        file.write(f'        {param},\n')
+    for symbol in allSymbols:
+        file.write(f'        {symbol},\n')
     file.write('    )\n')
     
     file.write('    val_nlo = nlo(\n')
-    for param in allSymbols:
-        param = convert_to_cython_syntax(param)
-        file.write(f'        {param},\n')
+    for symbol in allSymbols:
+        file.write(f'        {symbol},\n')
     file.write('    )\n')
 
     if loopOrder >1:
         file.write('    val_nnlo = nnlo(\n')
-        for param in allSymbols:
-            param = convert_to_cython_syntax(param)
-            file.write(f'        {param},\n')
+        for symbol in allSymbols:
+            file.write(f'        {symbol},\n')
         file.write('    )\n')
     else:
         file.write('    val_nnlo = 0\n')
