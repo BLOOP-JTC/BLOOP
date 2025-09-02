@@ -1,5 +1,7 @@
 import os
 import numpy as np
+from textwrap import dedent
+from jinja2 import Environment
 
 from .mathematica_parsing import read_lines, get_terms
 import Bloop.PythoniseMathematica as PythoniseMathematica
@@ -41,8 +43,6 @@ def generate_veff_module(args, allSymbols):
     
     #=============================== setup file ==============================#
     with open(os.path.join(module_dir, 'setup.py'), 'w') as file:
-        from textwrap import dedent
-        from jinja2 import Environment
         file.writelines(Environment().from_string(dedent("""\
             #!/usr/bin/env python3
             # -*- coding: utf-8 -*-
