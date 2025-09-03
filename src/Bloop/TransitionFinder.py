@@ -8,7 +8,6 @@ from Bloop.PDGData import mTop, mW, mZ, higgsVEV
 
 
 def bIsPerturbative(params, pertSymbols, allSymbols):
-    ## Should actually check vertices but not a feature in DRalgo at time of writting
     for pertSymbol in pertSymbols:
         if abs(params[allSymbols.index(pertSymbol)]) > 4 * pi:
             return False
@@ -83,7 +82,6 @@ class TrackVEV:
         )
         
         if not solvedBetaFunction.success:
-            print(1)
             return minimizationResults | {"failureReason":  solvedBetaFunction.message}
         
         betaSpline4D = {
