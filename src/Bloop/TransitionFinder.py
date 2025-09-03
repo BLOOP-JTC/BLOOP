@@ -8,33 +8,11 @@ from Bloop.PDGData import mTop, mW, mZ, higgsVEV
 
 
 def bIsPerturbative(params, pertSymbols, allSymbols):
-    ## Should actually check vertices but not a feature in DRalgo at time of writting
     for pertSymbol in pertSymbols:
         if abs(params[allSymbols.index(pertSymbol)]) > 4 * pi:
             return False
 
     return True
-
-
-def constructSplineDictArray(
-    betaFunction4DExpression, muRange, initialConditions, allSymbols
-):
-    ## -----BUG------
-    ## This updates the RGScale with the value of mu
-    ## Weird FP errors can occur here (e.g. including mu in np.real or not)
-    solutionSoft = scipy.integrate.solve_ivp(
-        lambda mu, initialConditions: np.real(betaFunction4DExpression.evaluate(initialConditions) / mu),
-        (muRange[0], muRange[-1]),
-        initialConditions,
-        t_eval=muRange,
-    ).y
-
-    return {
-        ele: scipy.interpolate.CubicSpline(muRange, solutionSoft[idx])
-        for idx, ele in enumerate(allSymbols)
-        if ele != "RGScale"
-        if np.any(solutionSoft[idx] != solutionSoft[idx][0])
-    }
 
 @dataclass(frozen=True)
 class TrackVEV:
@@ -66,24 +44,6 @@ class TrackVEV:
             self.__init__(**config)
 
     def trackVEV(self, benchmark):
-        params = self.getLagranianParams4D(benchmark)
-
-        ## RG running. We want to do 4D -> 3D matching at a scale where logs are small;
-        ## usually a T-dependent scale 4.*pi*exp(-np.euler_gamma)*T
-        ## TODO FIX for when user RGscale < 7T!!!
-        muRange = np.linspace(
-            params[self.allSymbols.index("RGScale")],
-            7.3 * self.TRange[-1],
-            len(self.TRange) * 10,
-        )
-
-        betaSpline4D = constructSplineDictArray(
-            self.betaFunction4DExpression,
-            muRange,
-            params,
-            self.allSymbols,
-        )
-
         minimizationResults = {
             "T": [],
             "vevDepthReal": [],
@@ -91,6 +51,44 @@ class TrackVEV:
             "vevLocation": [],
             "bIsPerturbative": [],
             "failureReason": False,
+        }
+
+        params = self.getLagranianParams4D(benchmark)
+
+        ## RG running. We want to do 4D -> 3D matching at a scale where logs are small;
+        ## usually a T-dependent scale 4.*pi*exp(-np.euler_gamma)*T
+        ## TODO FIX for when user RGscale < 7T!!!
+
+        muRange = np.linspace(
+            params[self.allSymbols.index("RGScale")],
+            7.3 * self.TRange[-1],
+            len(self.TRange) * 10,
+        )
+
+        ## -----Unexepected behaviour------
+        ## This updates the RGScale with the value of mu
+        ## including mu in np.real or not gives fp errors
+        def betaFunction(
+                mu, 
+                initialConditions
+            ):
+                return np.real(self.betaFunction4DExpression.evaluate(initialConditions) / mu)
+                
+        solvedBetaFunction = scipy.integrate.solve_ivp(
+            betaFunction,
+            (muRange[0], muRange[-1]),
+            params,
+            t_eval=muRange
+        )
+        
+        if not solvedBetaFunction.success:
+            return minimizationResults | {"failureReason":  solvedBetaFunction.message}
+        
+        betaSpline4D = {
+            ele: scipy.interpolate.CubicSpline(muRange, solvedBetaFunction.y[idx])
+            for idx, ele in enumerate(self.allSymbols)
+            if ele != "RGScale"
+            if np.any(solvedBetaFunction.y[idx] != solvedBetaFunction.y[idx][0])
         }
 
         counter = 0
@@ -105,7 +103,6 @@ class TrackVEV:
 
             params = self.runParams4D(betaSpline4D, T)
 
-            ##
             if not np.all(self.bounded.evaluateUnordered(params)):
                 return minimizationResults | {"failureReason": "unBounded"}
 
