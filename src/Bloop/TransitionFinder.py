@@ -16,19 +16,30 @@ def bIsPerturbative(params, pertSymbols, allSymbols):
     return True
 
 
-def constructSplineDictArray(
+def solve4DBetaFunction(
     betaFunction4DExpression, muRange, initialConditions, allSymbols
 ):
     ## -----BUG------
     ## This updates the RGScale with the value of mu
-    ## Weird FP errors can occur here (e.g. including mu in np.real or not)
+    ## including mu in np.real or not gives fp errors
+
+    allSymbols = np.array(allSymbols)
+    def func(mu, initialConditions):
+        indices = np.nonzero(initialConditions)
+        print(initialConditions[indices], allSymbols[indices])
+        print()
+        return np.real(betaFunction4DExpression.evaluate(initialConditions) / mu)
+        
     solutionSoft = scipy.integrate.solve_ivp(
-        lambda mu, initialConditions: np.real(betaFunction4DExpression.evaluate(initialConditions) / mu),
+        func,
         (muRange[0], muRange[-1]),
         initialConditions,
-        t_eval=muRange,
-    ).y
-
+        method='LSODA'
+    )
+    print(solutionSoft)
+    print(len(muRange))
+    print(np.shape(solutionSoft))
+    exit()
     return {
         ele: scipy.interpolate.CubicSpline(muRange, solutionSoft[idx])
         for idx, ele in enumerate(allSymbols)
@@ -77,7 +88,7 @@ class TrackVEV:
             len(self.TRange) * 10,
         )
 
-        betaSpline4D = constructSplineDictArray(
+        betaSpline4D = solve4DBetaFunction(
             self.betaFunction4DExpression,
             muRange,
             params,
