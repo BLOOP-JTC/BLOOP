@@ -90,30 +90,6 @@ def pythoniseMatrix(lines):
     ]
 
 
-def pythoniseMassMatrix(definitionsLines, matrixLines):
-    from sympy.core.sympify import sympify
-
-    ##Need sympify that the parsed matrix line is ufuncable
-    ##Need str to make compatable with json
-    definitions = pythoniseExpressionSystem(definitionsLines)
-    return {
-        "identifier": "Missing",
-        "symbols": definitions,
-        "expression": str(sympify([
-            [
-                list(filter(
-                    lambda definition: definition["identifier"] == symbol.strip(), 
-                    definitions
-                ))[0]["expression"] if symbol.strip() in [
-                    definition["identifier"] for definition in definitions
-                ] else symbol.strip()
-                for symbol in line.strip().strip("}").strip("{").split(",")
-            ]
-            for line in matrixLines
-        ])),
-    }
-
-
 def pythoniseRotationMatrix(lines):
     sympyMatrix = Matrix(pythoniseMatrix(lines))
     shape = sympyMatrix.shape
@@ -191,10 +167,10 @@ def pythoniseMathematica(args):
         
         "scalarMassMatrices": {
             "expressions": [
-                pythoniseMassMatrix(
-                    getLines(deff), getLines(args.scalarMassMatricesFiles[idx])
+                pythoniseExpression(
+                    getLines(massMatrixFilePath)[0]
                 )
-                for idx, deff in enumerate(args.scalarMassMatricesDefinitionsFiles)
+                for massMatrixFilePath in args.scalarMassMatricesFiles
             ],
             "fileName": [
                 [deff, args.scalarMassMatricesFiles[idx]]
@@ -309,12 +285,6 @@ class PythoniseMathematicaUnitTests(TestCase):
         source = ["{1, 0}", "{0, 0}"]
 
         self.assertEqual(reference, pythoniseMatrix(source))
-
-    def test_pythoniseMassMatrix(self):
-        reference = {'expression': '[[1, 0], [0, mssq]]', 'identifier': 'Missing', 'symbols': []}
-        source = ["{1, 0}", "{0, mssq}"]
-
-        self.assertEqual(reference, pythoniseMassMatrix([], source))
 
     def test_pythoniseRotationMatrix(self):
         reference = {"matrix": {"mssq00": (0, 0), "mssq11": (1, 1)}}
