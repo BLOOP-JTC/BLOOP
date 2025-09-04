@@ -335,21 +335,8 @@ bottomRightMM = Take[blockDiagonalMM,{7,12},{7,12}];
 If[!SymmetricMatrixQ[upperLeftMM] || !SymmetricMatrixQ[bottomRightMM], Print["Error, block not symmetric!"]];
 
 
-(* ::Subsubsection:: *)
-(*Export scalar mass matrix*)
-
-
-(* Simplify both blocks by introducing additional symbols, then extract them separately *)
-{upperLeftMMSymbolic, upperLeftMMDefinitions} = toSymbolicMatrix[upperLeftMM, "MMUL", True]//Simplify;
-{bottomRightMMSymbolic, bottomRightMMDefinitions} = toSymbolicMatrix[bottomRightMM, "MMBR", True]//Simplify;
-
-(* Export expressions separately because we have the code to parse that *)
-exportUTF8[effectivePotentialDirectory<>"/scalarMassMatrix_upperLeft.txt", upperLeftMMSymbolic];
-exportUTF8[effectivePotentialDirectory<>"/scalarMassMatrix_upperLeft_definitions.txt", upperLeftMMDefinitions];
-
-
-exportUTF8[effectivePotentialDirectory<>"/scalarMassMatrix_bottomRight.txt", bottomRightMMSymbolic];
-exportUTF8[effectivePotentialDirectory<>"/scalarMassMatrix_bottomRight_definitions.txt", bottomRightMMDefinitions];
+exportUTF8[effectivePotentialDirectory<>"/scalarMassMatrix_upperLeft.txt", upperLeftMM];
+exportUTF8[effectivePotentialDirectory<>"/scalarMassMatrix_bottomRight.txt", bottomRightMM];
 
 
 (* ::Subsubsection:: *)
