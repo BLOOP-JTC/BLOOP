@@ -335,21 +335,8 @@ bottomRightMM = Take[blockDiagonalMM,{7,12},{7,12}];
 If[!SymmetricMatrixQ[upperLeftMM] || !SymmetricMatrixQ[bottomRightMM], Print["Error, block not symmetric!"]];
 
 
-(* ::Subsubsection:: *)
-(*Export scalar mass matrix*)
-
-
-(* Simplify both blocks by introducing additional symbols, then extract them separately *)
-{upperLeftMMSymbolic, upperLeftMMDefinitions} = toSymbolicMatrix[upperLeftMM, "MMUL", True]//Simplify;
-{bottomRightMMSymbolic, bottomRightMMDefinitions} = toSymbolicMatrix[bottomRightMM, "MMBR", True]//Simplify;
-
-(* Export expressions separately because we have the code to parse that *)
-exportUTF8[effectivePotentialDirectory<>"/scalarMassMatrix_upperLeft.txt", upperLeftMMSymbolic];
-exportUTF8[effectivePotentialDirectory<>"/scalarMassMatrix_upperLeft_definitions.txt", upperLeftMMDefinitions];
-
-
-exportUTF8[effectivePotentialDirectory<>"/scalarMassMatrix_bottomRight.txt", bottomRightMMSymbolic];
-exportUTF8[effectivePotentialDirectory<>"/scalarMassMatrix_bottomRight_definitions.txt", bottomRightMMDefinitions];
+exportUTF8[effectivePotentialDirectory<>"/scalarMassMatrix_upperLeft.txt", upperLeftMM];
+exportUTF8[effectivePotentialDirectory<>"/scalarMassMatrix_bottomRight.txt", bottomRightMM];
 
 
 (* ::Subsubsection:: *)
@@ -466,42 +453,24 @@ exportUTF8[
 	"fieldSymbols" -> extractSymbols[backgroundFieldsFull]}];
 
 
-(*The scalar mass matrices are a bit hacky since they don't have a direct out and the block diagonal nature means they shouldn't share the same out*)
-equationSymbols={
-	"hardScaleRGE"->{
-		"Out" -> extractSymbols[betaFunctions4DUnsquared]["LHS"],
-		"In" -> extractSymbols[betaFunctions4DUnsquared]["RHS"]},
-	"softScaleParams"->{
-		"Out" -> extractSymbols[allSoftScaleParamsSqrtSuffixFree]["LHS"],
-		"In" -> extractSymbols[allSoftScaleParamsSqrtSuffixFree]["RHS"]},
-	"softScaleRGE"->{
-		"Out" -> extractSymbols[running3DSoft]["LHS"],
-		"In" -> extractSymbols[running3DSoft]["RHS"]},	
-	"ultraSoftScaleParams"->{
-		"Out" -> extractSymbols[allUltrasoftScaleParamsSqrt]["LHS"],
-		"In" -> extractSymbols[allUltrasoftScaleParamsSqrt]["RHS"]},
-	"ultraSoftScaleRGE"->{
-		"Out" -> extractSymbols[runningUS]["LHS"],
-		"In" -> extractSymbols[runningUS]["RHS"]},	
-	"upperLeftMMDefinitions"->{
-		"Out" -> extractSymbols[ScalarMassDiag],
-		"In" -> extractSymbols[upperLeftMMDefinitions]["RHS"]},
-	"bottomRightMMDefinitions"->{
-		"Out" -> extractSymbols[ScalarMassDiag],
-		"In" -> extractSymbols[bottomRightMMDefinitions]["RHS"]},
-	"vectorMasses"->{
-		"Out" -> extractSymbols[VectorMassDiagSimple],
-		"In" -> extractSymbols[VectorMassExpressions]["RHS"]},
-	"LO"->extractSymbols[veffLO],
-	"NLO"-> extractSymbols[veffNLO],
-	"NNLO"-> extractSymbols[veffNNLO],
-	"rotationSymbols"->extractSymbols[DSRot]};
-
-
-exportUTF8[variables<>"/EquationSymbols.json", equationSymbols];
-
-
-exportUTF8[variables<>"/allSymbols.json",symbolsFromDict[equationSymbols]];
-
-
-symbolsFromDict[equationSymbols]
+allSymbols=DeleteDuplicates[Join[
+extractSymbols[veffLO],
+extractSymbols[veffNLO],
+extractSymbols[veffNNLO],
+extractSymbols[VectorMassExpressions]["LHS"],
+extractSymbols[VectorMassExpressions]["RHS"],
+extractSymbols[ScalarMassDiag],
+extractSymbols[upperLeftMM],
+extractSymbols[bottomRightMM],
+extractSymbols[runningUS]["LHS"],
+extractSymbols[runningUS]["RHS"],
+extractSymbols[allUltrasoftScaleParamsSqrt]["RHS"],
+extractSymbols[allUltrasoftScaleParamsSqrt]["LHS"],
+extractSymbols[running3DSoft]["RHS"],
+extractSymbols[running3DSoft]["LHS"],
+extractSymbols[allSoftScaleParamsSqrtSuffixFree]["RHS"],
+extractSymbols[allSoftScaleParamsSqrtSuffixFree]["LHS"],
+extractSymbols[betaFunctions4DUnsquared]["RHS"],
+extractSymbols[betaFunctions4DUnsquared]["LHS"]
+]]
+exportUTF8[variables<>"/allSymbols.json",allSymbols];
