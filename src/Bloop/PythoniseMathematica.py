@@ -97,8 +97,9 @@ def pythoniseMassMatrix(definitionsLines, matrixLines):
     ##Need str to make compatable with json
     definitions = pythoniseExpressionSystem(definitionsLines)
     return {
-        "definitions": definitions,
-        "matrix": str(sympify([
+        "identifier": "Missing",
+        "symbols": definitions,
+        "expression": str(sympify([
             [
                 list(filter(
                     lambda definition: definition["identifier"] == symbol.strip(), 
@@ -310,7 +311,7 @@ class PythoniseMathematicaUnitTests(TestCase):
         self.assertEqual(reference, pythoniseMatrix(source))
 
     def test_pythoniseMassMatrix(self):
-        reference = {"definitions": [], "matrix": "[[1, 0], [0, mssq]]"}
+        reference = {'expression': '[[1, 0], [0, mssq]]', 'identifier': 'Missing', 'symbols': []}
         source = ["{1, 0}", "{0, mssq}"]
 
         self.assertEqual(reference, pythoniseMassMatrix([], source))

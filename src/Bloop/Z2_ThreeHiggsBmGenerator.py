@@ -10,7 +10,7 @@ from pathlib import Path
 from os.path import join
 from glob import glob
 
-from Bloop.ParsedExpression import ParsedExpression, MassMatrix
+from Bloop.ParsedExpression import ParsedExpression
 from Bloop.EffectivePotential import cNlopt
 from Bloop.PDGData import mHiggs, higgsVEV
 
@@ -305,10 +305,10 @@ def generateBenchmarks(args):
         parsedExpressions = json.load(fp)
     ## Take the pythonised tree level potential we've generated
     treeLevel = ParsedExpression(parsedExpressions["veff"]["expressions"][0], None)
-    chargedMassMatrix = MassMatrix(
+    chargedMassMatrix = ParsedExpression(
         parsedExpressions["scalarMassMatrices"]["expressions"][0], None
     )
-    neutralMassMatrix = MassMatrix(
+    neutralMassMatrix = ParsedExpression(
         parsedExpressions["scalarMassMatrices"]["expressions"][1], None
     )
 

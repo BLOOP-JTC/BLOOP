@@ -81,16 +81,6 @@ class ParsedExpressionSystemArray:
         return [params[key] if key in params else 0 for key in self.allSymbols]
 
 
-class MassMatrix:
-    def __init__(self, massMatrix, fileName):
-        self.definitions = ParsedExpressionSystem(massMatrix["definitions"], fileName)
-        self.matrix = compile(massMatrix["matrix"], "<string>", mode="eval")
-        self.fileName = fileName
-
-    def evaluate(self, arguments):
-        return eval(self.matrix, arguments )
-
-
 class RotationMatrix:
     def __init__(self, symbolMap, fileName):
         self.symbolMap = symbolMap["matrix"]
@@ -163,15 +153,6 @@ class ParsedExpressionUnitTests(TestCase):
             reference,
             ParsedExpressionSystem(source, None).evaluate({"lam": 100, "mssq": 100}),
         )
-
-    def test_MassMatrix(self):
-        source = {
-            "definitions": [{"expression": "1", "identifier": "mssq", "symbols": []}],
-            "matrix": "[[1, 0], [0, mssq]]",
-        }
-
-        reference = [[1, 0], [0, 1]]
-        self.assertEqual(reference, MassMatrix(source, None).evaluate({"mssq": 1}))
 
     def test_RotationMatrix(self):
         source = {"matrix": {"mssq00": [0, 0], "mssq11": [1, 1]}}
