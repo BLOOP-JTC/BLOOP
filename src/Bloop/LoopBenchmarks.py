@@ -10,8 +10,8 @@ from Bloop.EffectivePotential import EffectivePotential, cNlopt
 from Bloop.ProcessMinimization import interpretData
 from Bloop.PythoniseMathematica import replaceGreekSymbols
 from Bloop.ParsedExpression import (
+    ParsedExpression,
     ParsedExpressionSystemArray,
-    MassMatrix,
     RotationMatrix,
 )
 
@@ -140,7 +140,7 @@ def setUpTrackVEV(args):
         ),
         pythonisedExpressions["scalarPermutationMatrix"],
         [
-            MassMatrix(
+            ParsedExpression(
                 massMatrix, pythonisedExpressions["scalarMassMatrices"]["fileName"][idx]
             )
             for idx, massMatrix in enumerate(

@@ -1,6 +1,1 @@
-{MMUL0, MMUL1, 0, MMUL5, MMUL8, MMUL13}
-{MMUL1, MMUL2, MMUL3, 0, MMUL9, MMUL14}
-{0, MMUL3, MMUL4, MMUL6, MMUL10, MMUL15}
-{MMUL5, 0, MMUL6, MMUL7, MMUL11, MMUL16}
-{MMUL8, MMUL9, MMUL10, MMUL11, MMUL12, 0}
-{MMUL13, MMUL14, MMUL15, MMUL16, 0, MMUL17}
+{{(2*v1^2*λ11 + v2^2*λ12 + v3^2*λ31 - 2*μ1sq)/2, v1*v3*λ3Im, 0, v1*v3*(λ31p/2 + λ3Re), v1*v2*(λ12p/2 + λ1Re) - μ12sqRe, -(v1*v2*λ1Im) + μ12sqIm},{v1*v3*λ3Im, (v2^2*λ23 + v1^2*λ31 + 2*v3^2*λ33 - 2*μ3sq)/2, v1*v3*(λ31p/2 + λ3Re), 0, -(v2*v3*λ2Im), v2*v3*(λ23p/2 + λ2Re)},{0, v1*v3*(λ31p/2 + λ3Re), (2*v1^2*λ11 + v2^2*λ12 + v3^2*λ31 - 2*μ1sq)/2, -(v1*v3*λ3Im), v1*v2*λ1Im - μ12sqIm, v1*v2*(λ12p/2 + λ1Re) - μ12sqRe},{v1*v3*(λ31p/2 + λ3Re), 0, -(v1*v3*λ3Im), (v2^2*λ23 + v1^2*λ31 + 2*v3^2*λ33 - 2*μ3sq)/2, v2*v3*(λ23p/2 + λ2Re), v2*v3*λ2Im},{v1*v2*(λ12p/2 + λ1Re) - μ12sqRe, -(v2*v3*λ2Im), v1*v2*λ1Im - μ12sqIm, v2*v3*(λ23p/2 + λ2Re), (v1^2*λ12 + 2*v2^2*λ22 + v3^2*λ23 - 2*μ2sq)/2, 0},{-(v1*v2*λ1Im) + μ12sqIm, v2*v3*(λ23p/2 + λ2Re), v1*v2*(λ12p/2 + λ1Re) - μ12sqRe, v2*v3*λ2Im, 0, (v1^2*λ12 + 2*v2^2*λ22 + v3^2*λ23 - 2*μ2sq)/2}}
