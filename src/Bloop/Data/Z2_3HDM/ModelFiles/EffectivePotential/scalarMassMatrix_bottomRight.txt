@@ -1,6 +1,6 @@
-{MMBR0, MMBR1, MMBR3, MMBR6, MMBR10, MMBR15}
-{MMBR1, MMBR2, MMBR4, MMBR7, MMBR11, MMBR16}
-{MMBR3, MMBR4, MMBR5, MMBR8, MMBR12, MMBR17}
-{MMBR6, MMBR7, MMBR8, MMBR9, MMBR13, MMBR18}
-{MMBR10, MMBR11, MMBR12, MMBR13, MMBR14, MMBR19}
-{MMBR15, MMBR16, MMBR17, MMBR18, MMBR19, MMBR20}
+{(v1^2*(λ12 + λ12p + 2*λ1Re) + 6*v2^2*λ22 + v3^2*(λ23 + λ23p + 2*λ2Re) - 2*μ2sq)/2, -(v1^2*λ1Im) + v3^2*λ2Im, 2*v1*v2*λ1Im - μ12sqIm, v2*v3*(λ23 + λ23p + 2*λ2Re), v1*v2*(λ12 + λ12p + 2*λ1Re) - μ12sqRe, -2*v2*v3*λ2Im}
+{-(v1^2*λ1Im) + v3^2*λ2Im, (v1^2*(λ12 + λ12p - 2*λ1Re) + 2*v2^2*λ22 + v3^2*(λ23 + λ23p - 2*λ2Re) - 2*μ2sq)/2, 2*v1*v2*λ1Re - μ12sqRe, 2*v2*v3*λ2Im, -2*v1*v2*λ1Im + μ12sqIm, 2*v2*v3*λ2Re}
+{2*v1*v2*λ1Im - μ12sqIm, 2*v1*v2*λ1Re - μ12sqRe, (2*v1^2*λ11 + v2^2*(λ12 + λ12p - 2*λ1Re) + v3^2*(λ31 + λ31p - 2*λ3Re) - 2*μ1sq)/2, -2*v1*v3*λ3Im, v2^2*λ1Im - v3^2*λ3Im, 2*v1*v3*λ3Re}
+{v2*v3*(λ23 + λ23p + 2*λ2Re), 2*v2*v3*λ2Im, -2*v1*v3*λ3Im, (v2^2*(λ23 + λ23p + 2*λ2Re) + 6*v3^2*λ33 + v1^2*(λ31 + λ31p + 2*λ3Re) - 2*μ3sq)/2, v1*v3*(λ31 + λ31p + 2*λ3Re), -(v2^2*λ2Im) + v1^2*λ3Im}
+{v1*v2*(λ12 + λ12p + 2*λ1Re) - μ12sqRe, -2*v1*v2*λ1Im + μ12sqIm, v2^2*λ1Im - v3^2*λ3Im, v1*v3*(λ31 + λ31p + 2*λ3Re), (6*v1^2*λ11 + v2^2*(λ12 + λ12p + 2*λ1Re) + v3^2*(λ31 + λ31p + 2*λ3Re) - 2*μ1sq)/2, 2*v1*v3*λ3Im}
+{-2*v2*v3*λ2Im, 2*v2*v3*λ2Re, 2*v1*v3*λ3Re, -(v2^2*λ2Im) + v1^2*λ3Im, 2*v1*v3*λ3Im, (v2^2*(λ23 + λ23p - 2*λ2Re) + 2*v3^2*λ33 + v1^2*(λ31 + λ31p - 2*λ3Re) - 2*μ3sq)/2}
