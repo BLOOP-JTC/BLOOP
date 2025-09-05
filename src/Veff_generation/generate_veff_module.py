@@ -81,51 +81,15 @@ def generateCombinedVeffSubModules(filename, loopOrder, allSymbols):
 
 
 
-def write_veff_function(file, args):
-    """Adds function called Veff to the given file. Veff imports lo, nlo and
-    nnlo functions and evaluates them, returning the results in a tuple.
+def write_veff_function(file, loopOrder, allSymbols):
+    """Add function that imports veff submodles based on loopOrder,
+    returns the evaluated submodules as a tuple.
     """
-    # file.write('from .lo import lo\n')
-
-    # file.write('from .nlo import nlo\n')
-
-    # if loopOrder >1:
-    #     file.write('from .nnlo import nnlo\n')
-
-    # file.write('\n')
-    
-    # # Function name and input
-    # file.write('def Veff(\n')
-    
-    # for symbol in allSymbols:
-    #     file.write(f'    {symbol} = 1,\n')
-    
-    # file.write('    ):\n')
-    
-    # # Function body
-    # file.write('    val_lo = lo(\n')
-    # for symbol in allSymbols:
-    #     file.write(f'        {symbol},\n')
-    # file.write('    )\n')
-    
-    # file.write('    val_nlo = nlo(\n')
-    # for symbol in allSymbols:
-    #     file.write(f'        {symbol},\n')
-    # file.write('    )\n')
-
-    # if loopOrder >1:
-    #     file.write('    val_nnlo = nnlo(\n')
-    #     for symbol in allSymbols:
-    #         file.write(f'        {symbol},\n')
-    #     file.write('    )\n')
-    # else:
-    #     file.write('    val_nnlo = 0\n')
-    
-    # file.write('    return (val_lo, val_nlo, val_nnlo)\n')
-    file.write(Environment().from_string(dedent("""\
+    file.write(Environment().from_string(dedent(
+    """\
     from .lo import lo
     from .nlo import nlo
-    {%- if args.loopOrder > 1 %}
+    {%- if loopOrder > 1 %}
     from .nnlo import nnlo
     {%- endif %}
     
@@ -152,12 +116,12 @@ def write_veff_function(file, args):
             {{ symbol }},
     {%- endfor %}
         )
-    {%- else %}
-        val_nnlo = 0
-    {%- endif %}
-        
         return (val_lo, val_nlo, val_nnlo)
-    """)).render(args=args))
+    
+    {%- else %}
+        return (val_lo, val_nlo)
+    {%- endif %}
+    """)).render(loopOrder=loopOrder, allSymbols=allSymbols))
     
 
 
