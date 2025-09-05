@@ -76,8 +76,6 @@ def generateCombinedVeffSubModules(filename, loopOrder, allSymbols):
     
     with open(filename, 'w') as file:
         write_veff_function(file, loopOrder, allSymbols)
-        file.write('\n\n')
-        write_veff_params_function(file, allSymbols)
 
 
 
@@ -122,19 +120,7 @@ def write_veff_function(file, loopOrder, allSymbols):
         return (val_lo, val_nlo)
     {%- endif %}
     """)).render(loopOrder=loopOrder, allSymbols=allSymbols))
-    
 
-
-def write_veff_params_function(file, allSymbols):
-    """Adds a function called Veff_params to the given file. Veff_params
-    returns a tuple of parameters for the corresponding Veff function. The
-    parameters are pulled from a provided parameter dictionary.
-    """
-    file.write('def Veff_params(params):\n')
-    file.write('    return (\n')
-    for param in allSymbols:
-        file.write(f'        params["{param}"],\n')
-    file.write('    )\n')
 
 def generateVeffSubModule(name, moduleName, veffFp, allSymbols):
     """Creates a cython module with a function that evaluates an expression for
