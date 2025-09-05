@@ -1,7 +1,3 @@
-import re
-import numpy as np
-
-
 def read_lines(filename):
     """Reads the expression in the given file and breaks it into a list of 
     lines, each line representing a term in the expression to be summed.
@@ -31,38 +27,18 @@ def read_lines(filename):
     return lines
 
 
-
-def find_parameters(expression):
-    """Returns a list of parameter names in the given expression.
-    """
-    pattern = r"[a-zA-Z_\u0370-\u03FF][\w\u0370-\u03FF]*"
-    tokens = re.findall(pattern, expression)
-    # Exclude known functions or keywords (extend as needed)
-    known_functions = {"Sqrt", "Log", "Pi"}  # Add others as necessary
-    return [token for token in tokens if token not in known_functions]
-
-
-
 def get_terms(lines):
     """Breaks the given list of lines (ie terms to be summed in an expression)
     into two lists: a list containing the terms to be summed and a list of 
     leading signs for each term (excluding the first term).
-    
-    A set of all parameters that appear in the expression is also returned.
     """
-    params = set()
     terms = []
     signs = []
     
     for line in lines:
         if line in ["+ ", "- "]:
             signs.append(1 if line == "+ " else -1)
-            continue
-        
-        for param in find_parameters(line):
-            params.add(param)
         
         terms.append(line)
         
-    params = np.sort(list(params))
-    return params, signs, terms
+    return signs, terms
