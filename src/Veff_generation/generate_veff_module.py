@@ -33,7 +33,7 @@ def generate_veff_module(args, allSymbols):
             allSymbols
         )
     
-    generateCombinedVeffSubModules(
+    generateVeffModule(
         os.path.join(module_dir, 'veff.py'), 
         loopOrder, 
         allSymbols
@@ -68,8 +68,8 @@ def generate_veff_module(args, allSymbols):
             """
         )).render(args = args))
         
-def combineVeffSubModules(filename, loopOrder, allSymbols):
-     """Write a  function that imports veff submodules based on loopOrder,
+def generateVeffModule(filename, loopOrder, allSymbols):
+    """Write a  function that imports veff submodules based on loopOrder,
     returns the evaluated submodules as a tuple.
     """
     with open(filename, 'w') as file:
