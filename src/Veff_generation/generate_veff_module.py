@@ -68,59 +68,49 @@ def generate_veff_module(args, allSymbols):
             """
         )).render(args = args))
         
-def generateCombinedVeffSubModules(filename, loopOrder, allSymbols):
-    """Creates a submodule with Veff and Veff_params functions (see below).
-    """
-    if os.path.exists(filename):
-        os.remove(filename)
-    
-    with open(filename, 'w') as file:
-        write_veff_function(file, loopOrder, allSymbols)
-
-
-
-def write_veff_function(file, loopOrder, allSymbols):
-    """Add function that imports veff submodles based on loopOrder,
+def combineVeffSubModules(filename, loopOrder, allSymbols):
+     """Write a  function that imports veff submodules based on loopOrder,
     returns the evaluated submodules as a tuple.
     """
-    file.write(Environment().from_string(dedent(
-    """\
-    from .lo import lo
-    from .nlo import nlo
-    {%- if loopOrder > 1 %}
-    from .nnlo import nnlo
-    {%- endif %}
-    
-    def Veff(
-    {%- for symbol in allSymbols %}
-        {{ symbol }} = 1,
-    {%- endfor %}
-        ):
-        val_lo = lo(
-    {%- for symbol in allSymbols %}
-            {{ symbol }},
-    {%- endfor %}
-        )
+    with open(filename, 'w') as file:
+        file.write(Environment().from_string(dedent(
+        """\
+        from .lo import lo
+        from .nlo import nlo
+        {%- if loopOrder > 1 %}
+        from .nnlo import nnlo
+        {%- endif %}
         
-        val_nlo = nlo(
-    {%- for symbol in allSymbols %}
-            {{ symbol }},
-    {%- endfor %}
-        )
+        def Veff(
+        {%- for symbol in allSymbols %}
+            {{ symbol }} = 1,
+        {%- endfor %}
+            ):
+            val_lo = lo(
+        {%- for symbol in allSymbols %}
+                {{ symbol }},
+        {%- endfor %}
+            )
+            
+            val_nlo = nlo(
+        {%- for symbol in allSymbols %}
+                {{ symbol }},
+        {%- endfor %}
+            )
+            
+        {%- if loopOrder > 1 %}
+            val_nnlo = nnlo(
+        {%- for symbol in allSymbols %}
+                {{ symbol }},
+        {%- endfor %}
+            )
+            return (val_lo, val_nlo, val_nnlo)
         
-    {%- if loopOrder > 1 %}
-        val_nnlo = nnlo(
-    {%- for symbol in allSymbols %}
-            {{ symbol }},
-    {%- endfor %}
-        )
-        return (val_lo, val_nlo, val_nnlo)
-    
-    {%- else %}
-        return (val_lo, val_nlo)
-    {%- endif %}
-    """)).render(loopOrder=loopOrder, allSymbols=allSymbols))
-
+        {%- else %}
+            return (val_lo, val_nlo)
+        {%- endif %}
+        """)).render(loopOrder=loopOrder, allSymbols=allSymbols))
+     
 
 def generateVeffSubModule(name, moduleName, veffFp, allSymbols):
     """Creates a cython module with a function that evaluates an expression for
