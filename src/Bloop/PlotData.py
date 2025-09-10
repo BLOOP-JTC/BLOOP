@@ -26,5 +26,5 @@ def plotData(
     plt.ylabel(r"$\dfrac{v}{\sqrt{T}}$", rotation=0, labelpad=10)
     plt.xlabel("T (GeV)")
     plt.savefig(f"{filename}.png")
-    
+    plt.close()    
     return
