@@ -10,7 +10,12 @@ Some functions have been written by Claude v3.5 and are denoted as such
 
 
 
-exportUTF8[fileName_, expr_] := Export[fileName, expr, CharacterEncoding -> "UTF-8"\[NonBreakingSpace]];
+exportUTF8[fileName_, expr_] := Module[{},
+  If[StringQ[expr],
+    Export[fileName, expr, "Text", CharacterEncoding -> "UTF-8"],
+    Export[fileName, expr, CharacterEncoding -> "UTF-8"]
+  ]
+];
 
 
 (* ::Input::Initialization:: *)
