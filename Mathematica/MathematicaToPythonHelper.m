@@ -156,29 +156,9 @@ Instead, we will just use a symbol with numbers attached to denote the indices, 
 combination of indices produces an unique symbol we have to pad the indices with zeros.
 **)
 
-(* Turns a number into string and pads it with leading zeros *)
-toPaddedString[idx_, numZeros_Integer] := Block[{},
-	If[numZeros < 1, ToString[idx], 
-		StringJoin@ConstantArray["0", numZeros]<>ToString[idx]
-	]
-];
-
-toIndexedSymbol[symbol_, idx_, minDigits_Integer: 1] := Block[{paddedIdx},
-	paddedIdx = toPaddedString[idx, minDigits-1 - Floor[Log10[idx]]];
-	
-	ToExpression[ ToString[symbol]<>paddedIdx ]
-];
-
-toIndexedSymbol2[symbol_, idx1_, idx2_, minDigits_Integer: 1] := Block[{paddedIdx1, paddedIdx2},
-	paddedIdx1 = toPaddedString[idx1, minDigits-1 - Floor[Log10[idx1]]];
-	paddedIdx2 = toPaddedString[idx2, minDigits-1 - Floor[Log10[idx2]]];
-	
-	ToExpression[ ToString[symbol]<>paddedIdx1<>paddedIdx2 ]
-];
-
-
-matrixToJSON[mat_] := ExportString[
-  Association[ToString[#] -> StringRiffle[ToString /@ (Position[mat, #][[1]] - 1), ","] & /@ 
-    Select[DeleteDuplicates[Cases[mat, _Symbol, All]], AtomQ[#] && # =!= List &]], 
-  "JSON"
-]
+toIndexedSymbol[symbol_, indices_List, indexLength_] := 
+  ToExpression[ToString[symbol] <> StringJoin[
+    Map[With[{n = indexLength - IntegerLength[#]}, 
+        If[n < 1, ToString[#], StringJoin@ConstantArray["0", n] <> ToString[#]]
+        ] &, indices]
+  ]];
