@@ -345,8 +345,8 @@ blockSize = 6;
 (** Diagonalizing rotation, this will be SO(N) with N=12. But we know a permutation transformation to reduce it to two SO(6) matrices,
 so we first construct the two SO(6) and apply the inverse permutation. 
 There's no easy way of generating a symbolic orthogonal matrix so just use a generic 6x6 **)
-rotUpperLeft = Table[ toIndexedSymbol2[ "RUL", i, j, Total[DigitCount[blockSize]] ], {i, 1, blockSize}, {j, 1, blockSize}];
-rotBottomRight = Table[ toIndexedSymbol2[ "RBR", i, j, Total[DigitCount[blockSize]] ], {i, 1, blockSize}, {j, 1, blockSize}];
+rotUpperLeft = Table[ toIndexedSymbol2[ "RUL", i, j, IntegerLength[blockSize] ], {i, 1, blockSize}, {j, 1, blockSize}];
+rotBottomRight = Table[ toIndexedSymbol2[ "RBR", i, j, IntegerLength[blockSize] ], {i, 1, blockSize}, {j, 1, blockSize}];
 
 DSRotBlock = Normal[BlockDiagonalMatrix[{rotUpperLeft,rotBottomRight}]];
 (* V = \[Phi]^T.M.\[Phi] 
@@ -357,15 +357,15 @@ Since we give DRalgo an arbitrary diagonal matrix and rotation matrix we have
 V = \[Phi]^T.M.\[Phi]
   = \[Phi]^T.R.R^T.M.R.R^T.\[Phi] = \[Phi]^T.R.D.R^T.\[Phi]
 We impose D = D' so R = P.S
-We compute D' and S in the python code numerically
+We compute D' and S in BLOOP numerically
 *)
 
 DSRot = scalarPermutationMatrix . DSRotBlock;
 Print["Scalar diagonalizing rotation:"];
 DSRot//MatrixForm;
 
-(** Diagonal mass matrix, unknown symbols **)
-ScalarMassDiag = DiagonalMatrix[ Table[toIndexedSymbol["MSsq", i, Total[DigitCount[12]]], {i, 1, 12}] ];
+(** Make a diagonalMatrix with elements "str<idx>" to represent eigenvalues of mass matrix**)
+ScalarMassDiag = Normal[DiagonalMatrix[ Table[toIndexedSymbol["MSsq", i, IntegerLength[blockSize*2]], {i, 1, blockSize*2}] ]];
 
 
 exportUTF8[effectivePotentialDirectory<>"/scalarRotationMatrix.json", matrixToJSON[DSRot]]
