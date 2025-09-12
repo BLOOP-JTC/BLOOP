@@ -175,3 +175,10 @@ toIndexedSymbol2[symbol_, idx1_, idx2_, minDigits_Integer: 1] := Block[{paddedId
 	
 	ToExpression[ ToString[symbol]<>paddedIdx1<>paddedIdx2 ]
 ];
+
+
+matrixToJSON[mat_] := ExportString[
+  Association[ToString[#] -> StringRiffle[ToString /@ (Position[mat, #][[1]] - 1), ","] & /@ 
+    Select[DeleteDuplicates[Cases[mat, _Symbol, All]], AtomQ[#] && # =!= List &]], 
+  "JSON"
+]

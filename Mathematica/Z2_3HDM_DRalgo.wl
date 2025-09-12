@@ -364,12 +364,11 @@ DSRot = scalarPermutationMatrix . DSRotBlock;
 Print["Scalar diagonalizing rotation:"];
 DSRot//MatrixForm;
 
-exportUTF8[effectivePotentialDirectory<>"/scalarRotationMatrix.txt", DSRot];
-
 (** Diagonal mass matrix, unknown symbols **)
 ScalarMassDiag = DiagonalMatrix[ Table[toIndexedSymbol["MSsq", i, Total[DigitCount[12]]], {i, 1, 12}] ];
 
 
+exportUTF8[effectivePotentialDirectory<>"/scalarRotationMatrix.json", matrixToJSON[DSRot]]
 exportUTF8[variables<>"/ScalarMassNames.json", extractSymbols[ScalarMassDiag]];
 
 
