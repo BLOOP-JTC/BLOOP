@@ -349,10 +349,14 @@ ScalarMassDiag == ScalarMassDiagNew
 (*Construct scalar rotation matrix *)
 
 
+(** We cannot diagonalise our mass matrix analytically. So we construct two arbitrary 6x6 matrices to act as our rotation matrices.
+These 6x6 matrices are then put into one 12x12 rotation matrix. This minimises the work DRalgo has to do as half the entries of the rotation matrix are zero.
+We do also have to apply the permutation matrix that we used to make the mass matrix block diagonal in the first place.
+We then fix the value of the rotation matrix numerically in BLOOP and plug them into the effectively potential.
+This does mean that symbollicaly our effective potential is not in the mass basis, but it does end up there numerically.
+We note here that the model does not violate CP (explicitly or spontaneously) then the mass matrix can be further block diagonalised for further perfomance gains**)
+
 blockSize = 6;
-(** Diagonalizing rotation, this will be SO(N) with N=12. But we know a permutation transformation to reduce it to two SO(6) matrices,
-so we first construct the two SO(6) and apply the inverse permutation. 
-There's no easy way of generating a symbolic orthogonal matrix so just use a generic 6x6 **)
 rotUpperLeft = Table[ toIndexedSymbol[ "RUL", {i, j}, IntegerLength[blockSize] ], {i, 1, blockSize}, {j, 1, blockSize}];
 rotBottomRight = Table[ toIndexedSymbol[ "RBR", {i, j}, IntegerLength[blockSize] ], {i, 1, blockSize}, {j, 1, blockSize}];
 DSRotBlock = Normal[BlockDiagonalMatrix[{rotUpperLeft,rotBottomRight}]];
