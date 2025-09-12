@@ -337,6 +337,9 @@ exportUTF8[effectivePotentialDirectory<>"/scalarMassMatrix_upperLeft.txt", ToStr
 exportUTF8[effectivePotentialDirectory<>"/scalarMassMatrix_bottomRight.txt", ToString[InputForm[bottomRightMM]]];
 
 
+DSRotBlock == Normal[BlockDiagonalMatrix[{rotUpperLeft,rotBottomRight}]]
+
+
 (* ::Subsubsection:: *)
 (*Construct scalar rotation matrix *)
 
@@ -348,10 +351,7 @@ There's no easy way of generating a symbolic orthogonal matrix so just use a gen
 rotUpperLeft = Table[ toIndexedSymbol2[ "RUL", i, j, Total[DigitCount[blockSize]] ], {i, 1, blockSize}, {j, 1, blockSize}];
 rotBottomRight = Table[ toIndexedSymbol2[ "RBR", i, j, Total[DigitCount[blockSize]] ], {i, 1, blockSize}, {j, 1, blockSize}];
 
-DSRotBlock = ArrayFlatten[{
-{rotUpperLeft, 0},
-{0, rotBottomRight}
-}];
+DSRotBlock = Normal[BlockDiagonalMatrix[{rotUpperLeft,rotBottomRight}]];
 (* V = \[Phi]^T.M.\[Phi] 
 	 = \[Phi]^T.P.P^T.M.P.P^T.\[Phi] = \[Phi]^T.P.B.P^T.\[Phi], make the mass matrix block diagonal, with some permutation matrix P: P^T.M.P = B
 	 = \[Phi]^T.P.S.S^T.B.S.S^T.P^T.\[Phi] = \[Phi]^T.P.S.B.S^T.P^T.\[Phi], make the block diagonal mass matrix diagonal, with some similarity transform S: S^T.B.P = D'
