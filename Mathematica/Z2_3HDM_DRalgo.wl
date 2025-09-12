@@ -337,9 +337,6 @@ exportUTF8[effectivePotentialDirectory<>"/scalarMassMatrix_upperLeft.txt", ToStr
 exportUTF8[effectivePotentialDirectory<>"/scalarMassMatrix_bottomRight.txt", ToString[InputForm[bottomRightMM]]];
 
 
-DSRotBlock == Normal[BlockDiagonalMatrix[{rotUpperLeft,rotBottomRight}]]
-
-
 (* ::Subsubsection:: *)
 (*Construct scalar rotation matrix *)
 
