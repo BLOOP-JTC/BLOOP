@@ -2,9 +2,9 @@
 
 (************************************************************************)
 (*
-This is a collection of functions that can be used to manipulate mathematica
-functions into a form we can turn into excutable pythong.
-Some functions have been written by Claude v3.5 and are denoted as such
+This is a collection of functions we use to manipulate mathematica
+outputs into a form we can easily work with in BLOOP.
+Most (all?) of the code here is written by claude v4
 *)
 (************************************************************************)
 
@@ -31,7 +31,7 @@ toSymbolicMatrix[matrix_, elementSymbol_, bIsSymmetric_: False] := Block[
 	(** don't replace numerical elements (esp. 0 or 1) **) 
 	IsTrivialQ[el_] := Return[ NumericQ[el] ];
 	
-	(** Helper. This is messy but am lazy. SetAttributes is used in order to modify the shorthandList argument **)
+	(** Helper. SetAttributes is used in order to modify the shorthandList argument **)
 	SetAttributes[AppendSymbolicShorthand, HoldAll];
 	AppendSymbolicShorthand[el_, shorthandBase_, shorthandList_] := Block[{substRule, shorthand},
 		If[ !IsTrivialQ[el],
@@ -150,10 +150,8 @@ sqrtSubRules[ruleList_]:=Module[{newRules},
 ];
 
 
-(** For table building etc it's convenient to use indices with []. 
-But for exporting let's get rid of the [] since those are actually function calls in Mathematica.
-Instead, we will just use a symbol with numbers attached to denote the indices, but to guarantee each
-combination of indices produces an unique symbol we have to pad the indices with zeros.
+(** Construct a table of symbols of the form <symbol><idx in list (starting at 0 to match python)>
+<idx> is zero padded to unique symbols and constant symbol length (not sure how big of deal this is)
 **)
 
 toIndexedSymbol[symbol_, indices_List, indexLength_] := 
