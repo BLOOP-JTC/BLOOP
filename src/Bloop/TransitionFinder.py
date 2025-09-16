@@ -112,10 +112,11 @@ class TrackVEV:
             params = self.softScaleRGE.evaluate(params)
             params = self.softToUltraSoft.evaluate(params)
 
+            ## Round needed because nlopt result sometimes fp out of bounds
             vevLocation, vevDepth = self.effectivePotential.findGlobalMinimum(
-                T, params, self.initialGuesses + [vevLocation]
+                T, params, self.initialGuesses + [np.round(vevLocation, 8)]
             )
-
+           
             minimizationResults["T"].append(T)
             minimizationResults["vevDepthReal"].append(vevDepth.real)
             minimizationResults["vevDepthImag"].append(vevDepth.imag)
@@ -177,7 +178,7 @@ class TrackVEV:
             params[self.allSymbols.index(key)] = spline(muEvaulate)
 
         return params
-
+    
     ############################
     def plotPotential(self, benchmark: dict[str:float]):
         ## This is just a trimmed version of trace free energy minimum Jasmine uses for plotting
