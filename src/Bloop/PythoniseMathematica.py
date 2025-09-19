@@ -151,7 +151,6 @@ def pythoniseMathematica(args):
             "expressions": pythoniseExpressionSystem(veffLines),
             "fileName": "Combined Veff files",
         },
-        
         "scalarMassMatrices": {
             "expressions": [
                 pythoniseExpression(
@@ -167,19 +166,19 @@ def pythoniseMathematica(args):
         "scalarRotationMatrix": {
             "scalarRotationMatrix": scalarRotationMatrix,
             "fileName": args.scalarRotationMatrixFile,
-         },
+        },
         "allSymbols": {
             "allSymbols": allSymbols,
             "fileName": args.allSymbolsFile,
-         },
+        },
         "lagranianVariables": {
             "lagranianVariables": getLinesJSON(args.lagranianVariablesFile),
             "fileName": args.lagranianVariablesFile 
-            },
+        },
         "scalarMassNames": {
             "scalarMassNames": getLinesJSON(args.scalarMassNamesFile),
             "fileName": args.scalarMassNamesFile 
-            }
+        },
     }
 
     expressionDict["scalarPermutationMatrix"] = (
