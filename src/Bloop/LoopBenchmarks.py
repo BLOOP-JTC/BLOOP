@@ -11,6 +11,7 @@ from Bloop.ProcessMinimization import interpretData
 from Bloop.PythoniseMathematica import replaceGreekSymbols
 from Bloop.ParsedExpression import (
     ParsedExpression,
+    ParsedExpressionSystem,
     ParsedExpressionSystemArray,
     RotationMatrix,
 )
@@ -140,14 +141,10 @@ def setUpTrackVEV(args):
             pythonisedExpressions["vectorShortHands"]["fileName"],
         ),
         pythonisedExpressions["scalarPermutationMatrix"],
-        [
-            ParsedExpression(
-                massMatrix, pythonisedExpressions["scalarMassMatrices"]["fileName"][idx]
-            )
-            for idx, massMatrix in enumerate(
-                pythonisedExpressions["scalarMassMatrices"]["expressions"]
-            )
-        ],
+        ParsedExpressionSystem(
+            pythonisedExpressions["scalarMassMatrices"]["expressions"], 
+            pythonisedExpressions["scalarMassMatrices"]["fileName"],
+        ),
         scalarRotationMatrix,
         allSymbols,
         veffArray,
