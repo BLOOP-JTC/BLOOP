@@ -13,7 +13,6 @@ from Bloop.ParsedExpression import (
     ParsedExpression,
     ParsedExpressionSystem,
     ParsedExpressionSystemArray,
-    RotationMatrix,
 )
 
 
