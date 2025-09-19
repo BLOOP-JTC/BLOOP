@@ -150,18 +150,14 @@ def pythoniseMathematica(args):
             "expressions": pythoniseExpressionSystem(veffLines),
             "fileName": "Combined Veff files",
         },
+        
         "scalarMassMatrices": {
-            "expressions": [
-                pythoniseExpression(
-                    getLines(massMatrixFilePath)[0]
-                )
-                for massMatrixFilePath in args.scalarMassMatricesFiles
-            ],
-            "fileName": [
-                [deff, args.scalarMassMatricesFiles[idx]]
-                for idx, deff in enumerate(args.scalarMassMatricesDefinitionsFiles)
-            ],
+            "expressions":pythoniseExpressionSystem(getLines(args.scalarMassMatrixFile)),
+            "fileName": args.scalarMassMatrixFile
         },
+        
+        
+        
         "scalarRotationMatrix": {
             "scalarRotationMatrix": scalarRotationMatrix,
             "fileName": args.scalarRotationMatrixFile,

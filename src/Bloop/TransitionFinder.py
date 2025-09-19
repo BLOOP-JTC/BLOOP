@@ -114,7 +114,7 @@ class TrackVEV:
 
             ## Round needed because nlopt result sometimes fp out of bounds
             vevLocation, vevDepth = self.effectivePotential.findGlobalMinimum(
-                T, params, self.initialGuesses + [np.round(vevLocation, 8)]
+                T, params, self.initialGuesses + [vevLocation]
             )
            
             minimizationResults["T"].append(T)
