@@ -333,8 +333,6 @@ bottomRightMM = Take[blockDiagonalMM,{7,12},{7,12}];
 If[!SymmetricMatrixQ[upperLeftMM] || !SymmetricMatrixQ[bottomRightMM], Print["Error, block not symmetric!"]];
 
 
-exportUTF8[effectivePotentialDirectory<>"/scalarMassMatrix_upperLeft.txt", ToString[InputForm[upperLeftMM]]];
-exportUTF8[effectivePotentialDirectory<>"/scalarMassMatrix_bottomRight.txt", ToString[InputForm[bottomRightMM]]];
 exportUTF8[
 effectivePotentialDirectory<>"/scalarMassMatrix.txt", 
 {MMUL-> ToString[InputForm[upperLeftMM]], 
