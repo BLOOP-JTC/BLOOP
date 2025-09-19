@@ -335,6 +335,12 @@ If[!SymmetricMatrixQ[upperLeftMM] || !SymmetricMatrixQ[bottomRightMM], Print["Er
 
 exportUTF8[effectivePotentialDirectory<>"/scalarMassMatrix_upperLeft.txt", ToString[InputForm[upperLeftMM]]];
 exportUTF8[effectivePotentialDirectory<>"/scalarMassMatrix_bottomRight.txt", ToString[InputForm[bottomRightMM]]];
+exportUTF8[
+effectivePotentialDirectory<>"/scalarMassMatrix.txt", 
+{MMUL-> ToString[InputForm[upperLeftMM]], 
+MMBR->ToString[InputForm[bottomRightMM]]
+}
+];
 
 
 (* ::Subsubsection:: *)
@@ -370,19 +376,8 @@ We compute D' and S in BLOOP numerically
 DSRot = scalarPermutationMatrix . DSRotBlock;
 
 
-matrixToJSON[mat_] := ExportString[
-  Association[ToString[#] -> StringRiffle[ToString /@ (Position[mat, #][[1]] - 1), ","] & /@ 
-    Select[DeleteDuplicates[Cases[mat, _Symbol, All]], AtomQ[#] && # =!= List &]], 
-  "JSON"
-]
-
-
-
 exportUTF8[effectivePotentialDirectory<>"/scalarRotationMatrix.json", matrixToJSON[DSRot]]
 exportUTF8[variables<>"/ScalarMassNames.json", extractSymbols[ScalarMassDiag]];
-
-
-Abort[]
 
 
 (* ::Subsection:: *)
