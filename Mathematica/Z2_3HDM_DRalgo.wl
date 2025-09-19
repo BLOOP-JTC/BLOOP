@@ -333,25 +333,33 @@ bottomRightMM = Take[blockDiagonalMM,{7,12},{7,12}];
 If[!SymmetricMatrixQ[upperLeftMM] || !SymmetricMatrixQ[bottomRightMM], Print["Error, block not symmetric!"]];
 
 
-exportUTF8[effectivePotentialDirectory<>"/scalarMassMatrix_upperLeft.txt", ToString[InputForm[upperLeftMM]]];
-exportUTF8[effectivePotentialDirectory<>"/scalarMassMatrix_bottomRight.txt", ToString[InputForm[bottomRightMM]]];
+exportUTF8[
+effectivePotentialDirectory<>"/scalarMassMatrix.txt", 
+{MMUL-> ToString[InputForm[upperLeftMM]], 
+MMBR->ToString[InputForm[bottomRightMM]]
+}
+];
 
 
 (* ::Subsubsection:: *)
 (*Construct scalar rotation matrix *)
 
 
-blockSize = 6;
-(** Diagonalizing rotation, this will be SO(N) with N=12. But we know a permutation transformation to reduce it to two SO(6) matrices,
-so we first construct the two SO(6) and apply the inverse permutation. 
-There's no easy way of generating a symbolic orthogonal matrix so just use a generic 6x6 **)
-rotUpperLeft = Table[ toIndexedSymbol2[ "RUL", i, j, Total[DigitCount[blockSize]] ], {i, 1, blockSize}, {j, 1, blockSize}];
-rotBottomRight = Table[ toIndexedSymbol2[ "RBR", i, j, Total[DigitCount[blockSize]] ], {i, 1, blockSize}, {j, 1, blockSize}];
+(** We cannot diagonalise our mass matrix analytically. So we construct two arbitrary 6x6 matrices to act as our rotation matrices.
+These 6x6 matrices are then put into one 12x12 rotation matrix. This minimises the work DRalgo has to do as half the entries of the rotation matrix are zero.
+We do also have to apply the permutation matrix that we used to make the mass matrix block diagonal in the first place.
+We then fix the value of the rotation matrix numerically in BLOOP and plug them into the effectively potential.
+This does mean that symbollicaly our effective potential is not in the mass basis, but it does end up there numerically.
+We note here that the model does not violate CP (explicitly or spontaneously) then the mass matrix can be further block diagonalised for further perfomance gains**)
 
-DSRotBlock = ArrayFlatten[{
-{rotUpperLeft, 0},
-{0, rotBottomRight}
-}];
+blockSize = 6;
+rotUpperLeft = Table[ toIndexedSymbol[ "RUL", {i, j}, IntegerLength[blockSize] ], {i, 1, blockSize}, {j, 1, blockSize}];
+rotBottomRight = Table[ toIndexedSymbol[ "RBR", {i, j}, IntegerLength[blockSize] ], {i, 1, blockSize}, {j, 1, blockSize}];
+DSRotBlock = Normal[BlockDiagonalMatrix[{rotUpperLeft,rotBottomRight}]];
+
+(** Make a diagonalMatrix with elements "str<idx>" to represent eigenvalues of mass matrix**)
+ScalarMassDiag =Normal[DiagonalMatrix[ Table[toIndexedSymbol["MSsq", {i}, IntegerLength[blockSize*2]], {i, 1, blockSize*2}] ]];
+
 (* V = \[Phi]^T.M.\[Phi] 
 	 = \[Phi]^T.P.P^T.M.P.P^T.\[Phi] = \[Phi]^T.P.B.P^T.\[Phi], make the mass matrix block diagonal, with some permutation matrix P: P^T.M.P = B
 	 = \[Phi]^T.P.S.S^T.B.S.S^T.P^T.\[Phi] = \[Phi]^T.P.S.B.S^T.P^T.\[Phi], make the block diagonal mass matrix diagonal, with some similarity transform S: S^T.B.P = D'
@@ -360,19 +368,13 @@ Since we give DRalgo an arbitrary diagonal matrix and rotation matrix we have
 V = \[Phi]^T.M.\[Phi]
   = \[Phi]^T.R.R^T.M.R.R^T.\[Phi] = \[Phi]^T.R.D.R^T.\[Phi]
 We impose D = D' so R = P.S
-We compute D' and S in the python code numerically
+We compute D' and S in BLOOP numerically
 *)
 
 DSRot = scalarPermutationMatrix . DSRotBlock;
-Print["Scalar diagonalizing rotation:"];
-DSRot//MatrixForm;
-
-exportUTF8[effectivePotentialDirectory<>"/scalarRotationMatrix.txt", DSRot];
-
-(** Diagonal mass matrix, unknown symbols **)
-ScalarMassDiag = DiagonalMatrix[ Table[toIndexedSymbol["MSsq", i, Total[DigitCount[12]]], {i, 1, 12}] ];
 
 
+exportUTF8[effectivePotentialDirectory<>"/scalarRotationMatrix.json", matrixToJSON[DSRot]]
 exportUTF8[variables<>"/ScalarMassNames.json", extractSymbols[ScalarMassDiag]];
 
 

@@ -2,9 +2,9 @@
 
 (************************************************************************)
 (*
-This is a collection of functions that can be used to manipulate mathematica
-functions into a form we can turn into excutable pythong.
-Some functions have been written by Claude v3.5 and are denoted as such
+This is a collection of functions we use to manipulate mathematica
+outputs into a form we can easily work with in BLOOP.
+Most (all?) of the code here is written by claude v4
 *)
 (************************************************************************)
 
@@ -31,7 +31,7 @@ toSymbolicMatrix[matrix_, elementSymbol_, bIsSymmetric_: False] := Block[
 	(** don't replace numerical elements (esp. 0 or 1) **) 
 	IsTrivialQ[el_] := Return[ NumericQ[el] ];
 	
-	(** Helper. This is messy but am lazy. SetAttributes is used in order to modify the shorthandList argument **)
+	(** Helper. SetAttributes is used in order to modify the shorthandList argument **)
 	SetAttributes[AppendSymbolicShorthand, HoldAll];
 	AppendSymbolicShorthand[el_, shorthandBase_, shorthandList_] := Block[{substRule, shorthand},
 		If[ !IsTrivialQ[el],
@@ -150,28 +150,23 @@ sqrtSubRules[ruleList_]:=Module[{newRules},
 ];
 
 
-(** For table building etc it's convenient to use indices with []. 
-But for exporting let's get rid of the [] since those are actually function calls in Mathematica.
-Instead, we will just use a symbol with numbers attached to denote the indices, but to guarantee each
-combination of indices produces an unique symbol we have to pad the indices with zeros.
+(** Construct a table of symbols of the form <symbol><idx in list (starting at 0 to match python)>
+<idx> is zero padded to unique symbols and constant symbol length (not sure how big of deal this is)
 **)
 
-(* Turns a number into string and pads it with leading zeros *)
-toPaddedString[idx_, numZeros_Integer] := Block[{},
-	If[numZeros < 1, ToString[idx], 
-		StringJoin@ConstantArray["0", numZeros]<>ToString[idx]
-	]
-];
+toIndexedSymbol[symbol_, indices_List, indexLength_] := 
+  ToExpression[ToString[symbol] <> StringJoin[
+    Map[With[{n = indexLength - IntegerLength[#]}, 
+        If[n < 1, ToString[#], StringJoin@ConstantArray["0", n] <> ToString[#]]
+        ] &, indices]
+  ]];
 
-toIndexedSymbol[symbol_, idx_, minDigits_Integer: 1] := Block[{paddedIdx},
-	paddedIdx = toPaddedString[idx, minDigits-1 - Floor[Log10[idx]]];
-	
-	ToExpression[ ToString[symbol]<>paddedIdx ]
-];
 
-toIndexedSymbol2[symbol_, idx1_, idx2_, minDigits_Integer: 1] := Block[{paddedIdx1, paddedIdx2},
-	paddedIdx1 = toPaddedString[idx1, minDigits-1 - Floor[Log10[idx1]]];
-	paddedIdx2 = toPaddedString[idx2, minDigits-1 - Floor[Log10[idx2]]];
-	
-	ToExpression[ ToString[symbol]<>paddedIdx1<>paddedIdx2 ]
-];
+(* Generate a json from a matrix that has elements as keys and 
+index of the elements as value i.e. "ele": "idx1,idx2"*)
+matrixToJSON[mat_] := ExportString[
+  Association[ToString[#] -> (Position[mat, #][[1]] - 1) & /@ 
+    Select[DeleteDuplicates[Cases[mat, _Symbol, All]], AtomQ[#] && # =!= List &]], 
+  "JSON"
+]
+

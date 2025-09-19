@@ -280,7 +280,7 @@ class UserInput(argparse.ArgumentParser):
         self.add_argument(
             "--scalarRotationMatrixFile",
             action="store",
-            default="Data/Z2_3HDM/ModelFiles/EffectivePotential/scalarRotationMatrix.txt",
+            default="Data/Z2_3HDM/ModelFiles/EffectivePotential/scalarRotationMatrix.json",
         )
 
         self.add_argument(

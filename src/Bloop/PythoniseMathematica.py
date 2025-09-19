@@ -1,5 +1,4 @@
 import json
-from sympy import Matrix
 from sympy.parsing.mathematica import parse_mathematica
 from numpy import euler_gamma, pi
 from pathlib import Path
@@ -90,26 +89,13 @@ def pythoniseMatrix(lines):
     ]
 
 
-def pythoniseRotationMatrix(lines):
-    sympyMatrix = Matrix(pythoniseMatrix(lines))
-    shape = sympyMatrix.shape
-
-    symbolMap = {}
-    for i in range(shape[0]):
-        for j in range(shape[1]):
-            element = sympyMatrix[i, j]
-
-            if element.is_symbol:
-                symbolMap[str(sympyMatrix[i, j])] = (i, j)
-    return {"matrix": symbolMap}
-
-
 def pythoniseMathematica(args):
     veffLines = getLines(args.loFile)
     veffLines += getLines(args.nloFile)
     if args.loopOrder >= 2:
         veffLines += getLines(args.nnloFile)
     
+    scalarRotationMatrix = getLinesJSON(args.scalarRotationMatrixFile)
     allSymbols = getLinesJSON(args.allSymbolsFile) + ["missing"]
     allSymbols = sorted(
         [replaceGreekSymbols(symbol) for symbol in allSymbols], reverse=True
@@ -164,7 +150,6 @@ def pythoniseMathematica(args):
             "expressions": pythoniseExpressionSystem(veffLines),
             "fileName": "Combined Veff files",
         },
-        
         "scalarMassMatrices": {
             "expressions": [
                 pythoniseExpression(
@@ -178,23 +163,21 @@ def pythoniseMathematica(args):
             ],
         },
         "scalarRotationMatrix": {
-            "expressions": pythoniseRotationMatrix(
-                getLines(args.scalarRotationMatrixFile)
-            ),
+            "scalarRotationMatrix": scalarRotationMatrix,
             "fileName": args.scalarRotationMatrixFile,
         },
         "allSymbols": {
             "allSymbols": allSymbols,
             "fileName": args.allSymbolsFile,
-         },
+        },
         "lagranianVariables": {
             "lagranianVariables": getLinesJSON(args.lagranianVariablesFile),
             "fileName": args.lagranianVariablesFile 
-            },
+        },
         "scalarMassNames": {
             "scalarMassNames": getLinesJSON(args.scalarMassNamesFile),
             "fileName": args.scalarMassNamesFile 
-            }
+        },
     }
 
     expressionDict["scalarPermutationMatrix"] = (
@@ -286,8 +269,3 @@ class PythoniseMathematicaUnitTests(TestCase):
 
         self.assertEqual(reference, pythoniseMatrix(source))
 
-    def test_pythoniseRotationMatrix(self):
-        reference = {"matrix": {"mssq00": (0, 0), "mssq11": (1, 1)}}
-        source = ["{mssq00, 0}", "{0, mssq11}"]
-
-        self.assertEqual(reference, pythoniseRotationMatrix(source))

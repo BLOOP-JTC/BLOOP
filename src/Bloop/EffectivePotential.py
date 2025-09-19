@@ -140,12 +140,7 @@ class EffectivePotential:
     def diagonalizeScalars(self, params3D, T):
         """Finds a rotation matrix that diagonalizes the scalar mass matrix
         and returns a dict with diagonalization-specific params"""
-        subMassMatrix = (
-            np.array(
-                [matrix.evaluate(params3D) for matrix in self.scalarMassMatrices]
-            ).real
-            / T**2
-        )
+        subMassMatrix = np.array(self.scalarMassMatrices.evaluate(params3D)).real / T**2
 
         subEigenValues, subRotationMatrix = diagonalizeNumba(
             subMassMatrix, subMassMatrix.shape[0], subMassMatrix.shape[1], T
@@ -159,7 +154,10 @@ class EffectivePotential:
         else:
             subRotationMatrix=subRotationMatrix[0]
             
-        params3D |= self.scalarRotationMatrix.evaluate(subRotationMatrix)
+        params3D |= {
+            symbol: subRotationMatrix[indices[0], indices[1]]
+            for symbol, indices in self.scalarRotationMatrix.items()
+        }
 
         return params3D | {
             name: float(msq) for name, msq in zip(self.scalarMassNames, chain(*subEigenValues))

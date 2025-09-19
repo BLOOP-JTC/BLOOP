@@ -81,22 +81,6 @@ class ParsedExpressionSystemArray:
         return [params[key] if key in params else 0 for key in self.allSymbols]
 
 
-class RotationMatrix:
-    def __init__(self, symbolMap, fileName):
-        self.symbolMap = symbolMap["matrix"]
-        self.fileName = fileName
-
-    def evaluate(self, numericalM):
-        """Evaluates our symbols by plugging in numbers from the input numerical matrix.
-        Returns a dict with symbols names as keys.
-        """
-
-        return {
-            symbol: numericalM[indices[0]][indices[1]]
-            for symbol, indices in self.symbolMap.items()
-        }
-
-
 from unittest import TestCase
 
 
@@ -154,10 +138,3 @@ class ParsedExpressionUnitTests(TestCase):
             ParsedExpressionSystem(source, None).evaluate({"lam": 100, "mssq": 100}),
         )
 
-    def test_RotationMatrix(self):
-        source = {"matrix": {"mssq00": [0, 0], "mssq11": [1, 1]}}
-        reference = {"mssq00": 1, "mssq11": -1}
-
-        self.assertEqual(
-            reference, RotationMatrix(source, None).evaluate([[1, 0], [0, -1]])
-        )

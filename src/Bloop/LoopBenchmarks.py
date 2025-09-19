@@ -10,9 +10,8 @@ from Bloop.EffectivePotential import EffectivePotential, cNlopt
 from Bloop.ProcessMinimization import interpretData
 from Bloop.PythoniseMathematica import replaceGreekSymbols
 from Bloop.ParsedExpression import (
-    ParsedExpression,
+    ParsedExpressionSystem,
     ParsedExpressionSystemArray,
-    RotationMatrix,
 )
 
 
@@ -98,6 +97,7 @@ def setUpTrackVEV(args):
     with open(args.pythonisedExpressionsFile, "r") as fp:
         pythonisedExpressions = json.load(fp)
 
+    scalarRotationMatrix = pythonisedExpressions["scalarRotationMatrix"]["scalarRotationMatrix"]
     allSymbols = pythonisedExpressions["allSymbols"]["allSymbols"]
     lagranianVariables = pythonisedExpressions["lagranianVariables"]["lagranianVariables"]
     scalarMassNames = pythonisedExpressions["scalarMassNames"]["scalarMassNames"]
@@ -139,21 +139,14 @@ def setUpTrackVEV(args):
             pythonisedExpressions["vectorShortHands"]["fileName"],
         ),
         pythonisedExpressions["scalarPermutationMatrix"],
-        [
-            ParsedExpression(
-                massMatrix, pythonisedExpressions["scalarMassMatrices"]["fileName"][idx]
-            )
-            for idx, massMatrix in enumerate(
-                pythonisedExpressions["scalarMassMatrices"]["expressions"]
-            )
-        ],
-        RotationMatrix(
-            pythonisedExpressions["scalarRotationMatrix"]["expressions"],
-            pythonisedExpressions["scalarRotationMatrix"]["fileName"],
+        ParsedExpressionSystem(
+            pythonisedExpressions["scalarMassMatrices"]["expressions"], 
+            pythonisedExpressions["scalarMassMatrices"]["fileName"],
         ),
+        scalarRotationMatrix,
         allSymbols,
         veffArray,
-        scalarMassNames
+        scalarMassNames,
     )
 
     fourPointSymbols = [
