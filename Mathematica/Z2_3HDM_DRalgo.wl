@@ -337,14 +337,6 @@ exportUTF8[effectivePotentialDirectory<>"/scalarMassMatrix_upperLeft.txt", ToStr
 exportUTF8[effectivePotentialDirectory<>"/scalarMassMatrix_bottomRight.txt", ToString[InputForm[bottomRightMM]]];
 
 
-rotBottomRightNew = Table[ toIndexedSymbolNew[ "RBR", {i, j}, IntegerLength[blockSize] ], {i, 1, blockSize}, {j, 1, blockSize}]
-rotBottomRight==rotBottomRightNew
-
-
-ScalarMassDiagNew = Normal[DiagonalMatrix[ Table[toIndexedSymbolNew["MSsq", {i}, IntegerLength[blockSize*2]], {i, 1, blockSize*2}] ]];
-ScalarMassDiag == ScalarMassDiagNew
-
-
 (* ::Subsubsection:: *)
 (*Construct scalar rotation matrix *)
 
@@ -362,7 +354,7 @@ rotBottomRight = Table[ toIndexedSymbol[ "RBR", {i, j}, IntegerLength[blockSize]
 DSRotBlock = Normal[BlockDiagonalMatrix[{rotUpperLeft,rotBottomRight}]];
 
 (** Make a diagonalMatrix with elements "str<idx>" to represent eigenvalues of mass matrix**)
-ScalarMassDiag =Normal[DiagonalMatrix[ Table[toIndexedSymbolNew["MSsq", {i}, IntegerLength[blockSize*2]], {i, 1, blockSize*2}] ]];
+ScalarMassDiag =Normal[DiagonalMatrix[ Table[toIndexedSymbol["MSsq", {i}, IntegerLength[blockSize*2]], {i, 1, blockSize*2}] ]];
 
 (* V = \[Phi]^T.M.\[Phi] 
 	 = \[Phi]^T.P.P^T.M.P.P^T.\[Phi] = \[Phi]^T.P.B.P^T.\[Phi], make the mass matrix block diagonal, with some permutation matrix P: P^T.M.P = B
@@ -378,8 +370,19 @@ We compute D' and S in BLOOP numerically
 DSRot = scalarPermutationMatrix . DSRotBlock;
 
 
+matrixToJSON[mat_] := ExportString[
+  Association[ToString[#] -> StringRiffle[ToString /@ (Position[mat, #][[1]] - 1), ","] & /@ 
+    Select[DeleteDuplicates[Cases[mat, _Symbol, All]], AtomQ[#] && # =!= List &]], 
+  "JSON"
+]
+
+
+
 exportUTF8[effectivePotentialDirectory<>"/scalarRotationMatrix.json", matrixToJSON[DSRot]]
 exportUTF8[variables<>"/ScalarMassNames.json", extractSymbols[ScalarMassDiag]];
+
+
+Abort[]
 
 
 (* ::Subsection:: *)

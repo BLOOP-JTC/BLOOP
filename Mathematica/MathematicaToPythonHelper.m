@@ -160,3 +160,13 @@ toIndexedSymbol[symbol_, indices_List, indexLength_] :=
         If[n < 1, ToString[#], StringJoin@ConstantArray["0", n] <> ToString[#]]
         ] &, indices]
   ]];
+
+
+(* Generate a json from a matrix that has elements as keys and 
+index of the elements as value i.e. "ele": "idx1,idx2"*)
+matrixToJSON[mat_] := ExportString[
+  Association[ToString[#] -> StringRiffle[ToString /@ (Position[mat, #][[1]] - 1), ","] & /@ 
+    Select[DeleteDuplicates[Cases[mat, _Symbol, All]], AtomQ[#] && # =!= List &]], 
+  "JSON"
+]
+
