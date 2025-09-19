@@ -113,6 +113,7 @@ class TrackVEV:
             params = self.softToUltraSoft.evaluate(params)
 
             ## Round needed because nlopt result sometimes fp out of bounds
+            ## See https://github.com/stevengj/nlopt/issues/625
             vevLocation, vevDepth = self.effectivePotential.findGlobalMinimum(
                 T, params, self.initialGuesses + [np.round(vevLocation, 8)]
             )

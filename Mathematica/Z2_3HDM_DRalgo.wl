@@ -335,10 +335,13 @@ If[!SymmetricMatrixQ[upperLeftMM] || !SymmetricMatrixQ[bottomRightMM], Print["Er
 
 exportUTF8[
 effectivePotentialDirectory<>"/scalarMassMatrix.txt", 
-{MMUL-> ToString[InputForm[upperLeftMM]], 
-MMBR->ToString[InputForm[bottomRightMM]]
+{ToString[InputForm[upperLeftMM]], 
+ToString[InputForm[bottomRightMM]]
 }
 ];
+
+
+Abort[]
 
 
 (* ::Subsubsection:: *)
