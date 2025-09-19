@@ -159,7 +159,10 @@ class EffectivePotential:
         else:
             subRotationMatrix=subRotationMatrix[0]
             
-        params3D |= self.scalarRotationMatrix.evaluate(subRotationMatrix)
+        params3D |= {
+            symbol: subRotationMatrix[indices[0], indices[1]]
+            for symbol, indices in self.scalarRotationMatrix.items()
+        }
 
         return params3D | {
             name: float(msq) for name, msq in zip(self.scalarMassNames, chain(*subEigenValues))

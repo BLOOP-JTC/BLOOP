@@ -98,6 +98,7 @@ def setUpTrackVEV(args):
     with open(args.pythonisedExpressionsFile, "r") as fp:
         pythonisedExpressions = json.load(fp)
 
+    scalarRotationMatrix = pythonisedExpressions["scalarRotationMatrix"]["scalarRotationMatrix"]
     allSymbols = pythonisedExpressions["allSymbols"]["allSymbols"]
     lagranianVariables = pythonisedExpressions["lagranianVariables"]["lagranianVariables"]
     scalarMassNames = pythonisedExpressions["scalarMassNames"]["scalarMassNames"]
@@ -147,13 +148,10 @@ def setUpTrackVEV(args):
                 pythonisedExpressions["scalarMassMatrices"]["expressions"]
             )
         ],
-        RotationMatrix(
-            pythonisedExpressions["scalarRotationMatrix"]["expressions"],
-            pythonisedExpressions["scalarRotationMatrix"]["fileName"],
-        ),
+        scalarRotationMatrix,
         allSymbols,
         veffArray,
-        scalarMassNames
+        scalarMassNames,
     )
 
     fourPointSymbols = [

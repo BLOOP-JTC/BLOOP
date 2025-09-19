@@ -154,10 +154,3 @@ class ParsedExpressionUnitTests(TestCase):
             ParsedExpressionSystem(source, None).evaluate({"lam": 100, "mssq": 100}),
         )
 
-    def test_RotationMatrix(self):
-        source = {"matrix": {"mssq00": [0, 0], "mssq11": [1, 1]}}
-        reference = {"mssq00": 1, "mssq11": -1}
-
-        self.assertEqual(
-            reference, RotationMatrix(source, None).evaluate([[1, 0], [0, -1]])
-        )
