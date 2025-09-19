@@ -1,5 +1,4 @@
 import json
-from sympy import Matrix
 from sympy.parsing.mathematica import parse_mathematica
 from numpy import euler_gamma, pi
 from pathlib import Path

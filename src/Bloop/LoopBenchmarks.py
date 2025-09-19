@@ -10,7 +10,6 @@ from Bloop.EffectivePotential import EffectivePotential, cNlopt
 from Bloop.ProcessMinimization import interpretData
 from Bloop.PythoniseMathematica import replaceGreekSymbols
 from Bloop.ParsedExpression import (
-    ParsedExpression,
     ParsedExpressionSystem,
     ParsedExpressionSystemArray,
 )
