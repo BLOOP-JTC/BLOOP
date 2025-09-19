@@ -341,9 +341,6 @@ ToString[InputForm[bottomRightMM]]
 ];
 
 
-Abort[]
-
-
 (* ::Subsubsection:: *)
 (*Construct scalar rotation matrix *)
 
