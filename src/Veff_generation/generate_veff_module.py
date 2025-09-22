@@ -116,13 +116,12 @@ def generateVeffSubModule(name, moduleName, veffFp, allSymbols):
         
     lines = read_lines(veffFp)
     signs, terms = get_terms(lines)
-    
-    processed_terms = [['+=', convert_to_cython_syntax(terms[0])]]
+    ## Is this a problem if first term is negative??
+    processed_terms = [['+=', terms[0]]]
     
     for sign, term in zip(signs, terms[1:]):
-        processed_term = convert_to_cython_syntax(term)
         sign_op = '+=' if sign > 0 else '-='
-        processed_terms.append((sign_op, processed_term))
+        processed_terms.append((sign_op, term))
     with open(moduleName, 'w') as file:
     
         file.write(Environment().from_string(dedent("""\
@@ -207,5 +206,5 @@ def get_terms(lines):
             signs.append(1 if line == "+ " else -1)
         
         else:
-            terms.append(line)
+            terms.append(convert_to_cython_syntax(line))
     return signs, terms
