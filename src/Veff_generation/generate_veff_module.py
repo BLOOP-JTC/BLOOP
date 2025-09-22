@@ -1,6 +1,7 @@
 import os
 from textwrap import dedent
 from jinja2 import Environment
+import numpy as np
 
 import Bloop.PythoniseMathematica as PythoniseMathematica
 
@@ -110,18 +111,12 @@ def generateVeffModule(filename, loopOrder, allSymbols):
         {%- endif %}
         """)).render(loopOrder=loopOrder, allSymbols=allSymbols))
      
-
 def generateVeffSubModule(name, moduleName, veffFp, allSymbols):
     # Creates a cython module with a function that evaluates an expression for Veff
         
     lines = read_lines(veffFp)
-    signs, terms = get_terms(lines)
-    ## Is this a problem if first term is negative??
-    processed_terms = [['+=', terms[0]]]
-    
-    for sign, term in zip(signs, terms[1:]):
-        sign_op = '+=' if sign > 0 else '-='
-        processed_terms.append((sign_op, term))
+    opsAndTerms = np.transpose(get_terms(lines))
+
     with open(moduleName, 'w') as file:
     
         file.write(Environment().from_string(dedent("""\
@@ -147,11 +142,11 @@ def generateVeffSubModule(name, moduleName, veffFp, allSymbols):
             {%- endfor %}
                 ):
                 cdef double complex a = 0.0
-            {%- for op, term in processed_terms %}
+            {%- for op, term in opsAndTerms %}
                 a {{ op }} {{ term }}
             {%- endfor %}
                 return a
-            """)).render(name=name, allSymbols=allSymbols, processed_terms=processed_terms))
+            """)).render(name=name, allSymbols=allSymbols, opsAndTerms=opsAndTerms))
 
 
 def convert_to_cython_syntax(term):
@@ -199,12 +194,12 @@ def get_terms(lines):
     leading signs for each term (excluding the first term).
     """
     terms = []
-    signs = []
+    operations = ["+="]
     
     for line in lines:
         if line in ["+ ", "- "]:
-            signs.append(1 if line == "+ " else -1)
+            operations.append("+=" if line == "+ " else "-=")
         
         else:
             terms.append(convert_to_cython_syntax(line))
-    return signs, terms
+    return operations, terms
