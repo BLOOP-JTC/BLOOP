@@ -1,6 +1,7 @@
 import os
 from textwrap import dedent
 from jinja2 import Environment
+import numpy as np
 
 import Bloop.PythoniseMathematica as PythoniseMathematica
 
@@ -110,22 +111,10 @@ def generateVeffModule(filename, loopOrder, allSymbols):
         {%- endif %}
         """)).render(loopOrder=loopOrder, allSymbols=allSymbols))
      
-
 def generateVeffSubModule(name, moduleName, veffFp, allSymbols):
-    # Creates a cython module with a function that evaluates an expression for Veff
-        
-    lines = read_lines(veffFp)
-    signs, terms = get_terms(lines)
-    
-    processed_terms = [['+=', convert_to_cython_syntax(terms[0])]]
-    
-    for sign, term in zip(signs, terms[1:]):
-        processed_term = convert_to_cython_syntax(term)
-        sign_op = '+=' if sign > 0 else '-='
-        processed_terms.append((sign_op, processed_term))
-            
+    # Creates a cython module with that computes an order of Veff
     with open(moduleName, 'w') as file:
-        
+    
         file.write(Environment().from_string(dedent("""\
             #cython: cdivision=False
             from libc.complex cimport csqrt
@@ -149,13 +138,47 @@ def generateVeffSubModule(name, moduleName, veffFp, allSymbols):
             {%- endfor %}
                 ):
                 cdef double complex a = 0.0
-            {%- for op, term in processed_terms %}
+            {%- for op, term in opsAndExpressions %}
                 a {{ op }} {{ term }}
             {%- endfor %}
                 return a
-            """)).render(name=name, allSymbols=allSymbols, processed_terms=processed_terms))
+            """)).render(name=name, allSymbols=allSymbols, opsAndExpressions=np.transpose(mutliLineExpression(veffFp))))
 
 
+
+def mutliLineExpression(filePointer):
+    ## Takes an expressions and breaks it down into a mutli line expression
+    ## (Cython seems to struggle with the one line NNLO veff)
+    
+    with open(filePointer, 'r') as file:
+        veff = file.read()
+    
+    operations = ["+="]
+    expressions = []
+    
+    netBrackets = 0
+    start = 0
+    
+    for i, char in enumerate(veff):
+        if char == '(':
+            netBrackets += 1
+        elif char == ')':
+            netBrackets -= 1
+        if char == ' ' and netBrackets == 0:
+            ##+1 to catch space
+            line = veff[start:i+1]
+            if line in ["+ ", "- "]:
+                operations.append("+=" if line == "+ " else "-=")
+            else:
+                expressions.append(convert_to_cython_syntax(line))
+            start = i + 1
+    
+    # Any remaining characters should just be expressions
+    if start < len(veff):
+        line = veff[start:]
+        expressions.append(convert_to_cython_syntax(line))
+    return operations, expressions
+    
 def convert_to_cython_syntax(term):
     term = term.replace('Sqrt', 'csqrt')
     term = term.replace('Log', 'clog')
@@ -164,49 +187,3 @@ def convert_to_cython_syntax(term):
     term = term.replace('^', '**')
     term = PythoniseMathematica.replaceSymbolsConst(term)
     return PythoniseMathematica.replaceGreekSymbols(term)
-
-
-def read_lines(filename):
-    """Reads the expression in the given file and breaks it into a list of 
-    lines, each line representing a term in the expression to be summed.
-    """
-    num_unpaired_brackets = 0
-    next_line = []
-    lines = []
-    
-    with open(filename, 'r') as file:
-        while True:    
-            char = file.read(1)
-            if not char:
-                lines.append(''.join(next_line))
-                break
-            
-            next_line.append(char)
-            
-            if char == '(':
-                num_unpaired_brackets += 1
-            elif char == ')':
-                num_unpaired_brackets -= 1
-                
-            if char == ' ' and num_unpaired_brackets == 0:
-                lines.append(''.join(next_line))
-                next_line = []
-    
-    return lines
-
-
-def get_terms(lines):
-    """Breaks the given list of lines (ie terms to be summed in an expression)
-    into two lists: a list containing the terms to be summed and a list of 
-    leading signs for each term (excluding the first term).
-    """
-    terms = []
-    signs = []
-    
-    for line in lines:
-        if line in ["+ ", "- "]:
-            signs.append(1 if line == "+ " else -1)
-        
-        terms.append(line)
-        
-    return signs, terms
