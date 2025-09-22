@@ -123,9 +123,8 @@ def generateVeffSubModule(name, moduleName, veffFp, allSymbols):
         processed_term = convert_to_cython_syntax(term)
         sign_op = '+=' if sign > 0 else '-='
         processed_terms.append((sign_op, processed_term))
-            
     with open(moduleName, 'w') as file:
-        
+    
         file.write(Environment().from_string(dedent("""\
             #cython: cdivision=False
             from libc.complex cimport csqrt
@@ -207,6 +206,6 @@ def get_terms(lines):
         if line in ["+ ", "- "]:
             signs.append(1 if line == "+ " else -1)
         
-        terms.append(line)
-        
+        else:
+            terms.append(line)
     return signs, terms
