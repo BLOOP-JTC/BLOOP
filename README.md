@@ -51,4 +51,6 @@ The code is excuted via
 Generally useful flags:
 - --loopOrder
 - --verbose
+-  --bCython
+Cython is an experimental (read not unit tested) feature which compiles the parsed expressions (currently only the veff) into c code for minor perfomance gain/loss at 1 loop and major perfomance gain at two loop. Note that compiling the 2 loop expression uses a large amount of memory (~8GB).
 
