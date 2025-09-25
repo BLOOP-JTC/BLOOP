@@ -7,10 +7,10 @@ from dataclasses import dataclass, InitVar
 
 @njit
 def diagonalizeNumba(matrices, matrixNumber, matrixSize, T):
-    subEigenValues = np.empty((matrixNumber, matrixSize))
-    subRotationMatrix = np.empty((matrixNumber, matrixSize, matrixSize))
-    for idx, matrix in enumerate(matrices):
-        subEigenValues[idx], subRotationMatrix[idx] = np.linalg.eigh(matrix)
+    # subEigenValues = np.empty((matrixNumber, matrixSize))
+    # subRotationMatrix = np.empty((matrixNumber, matrixSize, matrixSize))
+    # for idx, matrix in enumerate(matrices):
+    subEigenValues, subRotationMatrix = np.linalg.eigh(matrices)
     return subEigenValues * T**2, subRotationMatrix
 
 
@@ -104,6 +104,7 @@ class EffectivePotential:
         """For physics reasons we only minimise the real part,
         for nlopt reasons we need to give a redunant grad arg"""
         def VeffWrapper(fields, grad):
+            print(fields)
             return np.real(
                     self.evaluatePotential(fields, T, params3D)
                 )
@@ -140,27 +141,26 @@ class EffectivePotential:
     def diagonalizeScalars(self, params3D, T):
         """Finds a rotation matrix that diagonalizes the scalar mass matrix
         and returns a dict with diagonalization-specific params"""
-        subMassMatrix = np.array(self.scalarMassMatrices.evaluate(params3D)).real / T**2
+        subMassMatrix = self.scalarMassMatrices.evaluate(params3D)
+        trivial, matrix = subMassMatrix 
+        subMassMatrix = np.asarray(matrix).real/T**2
 
         subEigenValues, subRotationMatrix = diagonalizeNumba(
-            subMassMatrix, subMassMatrix.shape[0], subMassMatrix.shape[1], T
+            subMassMatrix, 1, 2, T
         )
-
         ## If the user permutted the mass matrix in DRalgo we have to unpermute it
         if len(self.scalarPermutationMatrix) > 0:
-            subRotationMatrix = self.scalarPermutationMatrix @ linalg.block_diag(
-                *subRotationMatrix
-            )
+            
+            subRotationMatrix = self.scalarPermutationMatrix @ linalg.block_diag(np.identity(5),subRotationMatrix)
         else:
             subRotationMatrix=subRotationMatrix[0]
-            
         params3D |= {
             symbol: subRotationMatrix[indices[0], indices[1]]
             for symbol, indices in self.scalarRotationMatrix.items()
         }
 
         return params3D | {
-            name: float(msq) for name, msq in zip(self.scalarMassNames, chain(*subEigenValues))
+            name: float(msq) for name, msq in zip(self.scalarMassNames, chain(np.diagonal(trivial), subEigenValues))
         }
 
     ##Jasmine plotting tools
