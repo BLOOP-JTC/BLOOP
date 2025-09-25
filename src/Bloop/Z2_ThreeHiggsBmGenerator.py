@@ -17,38 +17,38 @@ from Bloop.PDGData import mHiggs, higgsVEV
 
 def bIsBounded(params):
     ## Taking equations 26-31 from the draft that ensure the potential is bounded from below.
-    if not params["lam11"] > 0:
+    if not params["lamda11"] > 0:
         return False
-    if not params["lam22"] > 0:
+    if not params["lamda22"] > 0:
         return False
-    if not params["lam33"] > 0:
+    if not params["lamda33"] > 0:
         return False
 
-    lamx = params["lam12"] + min(
-        0, params["lam12p"] - 2 * m.sqrt(params["lam1Re"] ** 2 + params["lam1Im"] ** 2)
+    lamdax = params["lamda12"] + min(
+        0, params["lamda12p"] - 2 * m.sqrt(params["lamda1Re"] ** 2 + params["lamda1Im"] ** 2)
     )
-    lamy = params["lam31"] + min(
-        0, params["lam31p"] - 2 * m.sqrt(params["lam3Re"] ** 2 + params["lam3Im"] ** 2)
+    lamday = params["lamda31"] + min(
+        0, params["lamda31p"] - 2 * m.sqrt(params["lamda3Re"] ** 2 + params["lamda3Im"] ** 2)
     )
-    lamz = params["lam23"] + min(
-        0, params["lam23p"] - 2 * m.sqrt(params["lam2Re"] ** 2 + params["lam2Im"] ** 2)
+    lamdaz = params["lamda23"] + min(
+        0, params["lamda23p"] - 2 * m.sqrt(params["lamda2Re"] ** 2 + params["lamda2Im"] ** 2)
     )
-    if not lamx > -2 * m.sqrt(params["lam11"] * params["lam22"]):
+    if not lamdax > -2 * m.sqrt(params["lamda11"] * params["lamda22"]):
         return False
-    if not lamy > -2 * m.sqrt(params["lam11"] * params["lam33"]):
+    if not lamday > -2 * m.sqrt(params["lamda11"] * params["lamda33"]):
         return False
-    if not lamz > -2 * m.sqrt(params["lam22"] * params["lam33"]):
+    if not lamdaz > -2 * m.sqrt(params["lamda22"] * params["lamda33"]):
         return False
     if not (
-        m.sqrt(params["lam33"]) * lamx
-        + m.sqrt(params["lam11"]) * lamz
-        + m.sqrt(params["lam22"]) * lamy
+        m.sqrt(params["lamda33"]) * lamdax
+        + m.sqrt(params["lamda11"]) * lamdaz
+        + m.sqrt(params["lamda22"]) * lamday
         >= 0
-        or params["lam33"] * lamx**2
-        + params["lam11"] * lamz**2
-        + params["lam22"] * lamy**2
-        - params["lam11"] * params["lam22"] * params["lam33"]
-        - 2 * lamx * lamy * lamz
+        or params["lamda33"] * lamdax**2
+        + params["lamda11"] * lamdaz**2
+        + params["lamda22"] * lamday**2
+        - params["lamda11"] * params["lamda22"] * params["lamda33"]
+        - 2 * lamdax * lamday * lamdaz
         < 0
     ):
         return False
@@ -90,7 +90,7 @@ def _lagranianParamGen(
     ## SM params
     vsq = higgsVEV**2
     mu3sq = mHiggs**2 / 2
-    lam33 = mu3sq / vsq
+    lamda33 = mu3sq / vsq
 
     ## ~~~ USER BSM PHYSICS ~~~
     mS2 = delta12 + mS1
@@ -99,35 +99,35 @@ def _lagranianParamGen(
     mu12sq = (mSpm2**2 - mSpm1**2) / 2
 
     sinTheta, cosTheta = m.sin(thetaCPV), m.cos(thetaCPV)
-    lam2absInsideSqR = (
+    lamda2absInsideSqR = (
         (2.0 * mu12sq * cosTheta) ** 2
         + (mS2**2 - mS1**2) ** 2
         - (mSpm2**2 - mSpm1**2) ** 2
     )
-    if lam2absInsideSqR < 0:
+    if lamda2absInsideSqR < 0:
         return False
 
-    lam2Abs = (mu12sq * cosTheta + m.sqrt(lam2absInsideSqR) / 4) / vsq
-    lam2Re = lam2Abs * cosTheta
-    lam2Im = lam2Abs * sinTheta
+    lamda2Abs = (mu12sq * cosTheta + m.sqrt(lamda2absInsideSqR) / 4) / vsq
+    lamda2Re = lamda2Abs * cosTheta
+    lamda2Im = lamda2Abs * sinTheta
 
     alpha = (
         -mu12sq
-        + vsq * lam2Abs * cosTheta
+        + vsq * lamda2Abs * cosTheta
         - m.sqrt(
-            mu12sq**2 + vsq**2 * lam2Abs**2 - 2.0 * vsq * mu12sq * lam2Abs * cosTheta
+            mu12sq**2 + vsq**2 * lamda2Abs**2 - 2.0 * vsq * mu12sq * lamda2Abs * cosTheta
         )
-    ) / ((vsq * lam2Abs * sinTheta) + 1e-100)
+    ) / ((vsq * lamda2Abs * sinTheta) + 1e-100)
     mu2sq = (
         vsq / 2.0 * ghDM
         - vsq
         / (alpha**2 + 1.0)
         * (2.0 * alpha * sinTheta + (alpha**2 - 1.0) * cosTheta)
-        * lam2Abs
+        * lamda2Abs
         - (mS2**2 + mS1**2) / 2
     )
-    lam23 = (2.0 * mu2sq + mSpm2**2 + mSpm1**2) / vsq
-    lam23p = (mS2**2 + mS1**2 - mSpm2**2 - mSpm1**2) / vsq
+    lamda23 = (2.0 * mu2sq + mSpm2**2 + mSpm1**2) / vsq
+    lamda23p = (mS2**2 + mS1**2 - mSpm2**2 - mSpm1**2) / vsq
 
     paramsDict = {
         "bmNumber": bmNumber,
@@ -149,21 +149,21 @@ def _lagranianParamGen(
             "mu1sq": darkHieracy * mu2sq,
         },
         "couplingValues": {
-            "lam1Re": 0.1,
-            "lam1Im": 0,
-            "lam2Re": lam2Abs * cosTheta,
-            "lam2Im": lam2Abs * sinTheta,
-            "lam11": 0.11,
-            "lam22": 0.12,
-            "lam12": 0.13,
-            "lam12p": 0.14,
-            "lam23": lam23,
-            "lam23p": lam23p,
-            "lam3Re": darkHieracy * lam2Re,
-            "lam3Im": darkHieracy * lam2Im,
-            "lam31": darkHieracy * lam23,
-            "lam31p": darkHieracy * lam23p,
-            "lam33": lam33,
+            "lamda1Re": 0.1,
+            "lamda1Im": 0,
+            "lamda2Re": lamda2Abs * cosTheta,
+            "lamda2Im": lamda2Abs * sinTheta,
+            "lamda11": 0.11,
+            "lamda22": 0.12,
+            "lamda12": 0.13,
+            "lamda12p": 0.14,
+            "lamda23": lamda23,
+            "lamda23p": lamda23p,
+            "lamda3Re": darkHieracy * lamda2Re,
+            "lamda3Im": darkHieracy * lamda2Im,
+            "lamda31": darkHieracy * lamda23,
+            "lamda31p": darkHieracy * lamda23p,
+            "lamda33": lamda33,
         },
     }
     return paramsDict
@@ -361,21 +361,21 @@ class BmGeneratorUnitTests(TestCase):
             "mu2sq": -20604.175986862854,
             "mu3sq": 7812.5,
             "mu1sq": -20604.175986862854,
-            "lam1Re": 0.1,
-            "lam1Im": 0.0,
-            "lam2Re": 0.08368703688875163,
-            "lam2Im": 0.05054893896685599,
-            "lam11": 0.11,
-            "lam22": 0.12,
-            "lam12": 0.13,
-            "lam12p": 0.14,
-            "lam23": 0.13184965469208287,
-            "lam23p": -0.10179114069822925,
-            "lam3Re": 0.08368703688875163,
-            "lam3Im": 0.05054893896685599,
-            "lam31": 0.13184965469208287,
-            "lam31p": -0.10179114069822925,
-            "lam33": 0.12886749199352251,
+            "lamda1Re": 0.1,
+            "lamda1Im": 0.0,
+            "lamda2Re": 0.08368703688875163,
+            "lamda2Im": 0.05054893896685599,
+            "lamda11": 0.11,
+            "lamda22": 0.12,
+            "lamda12": 0.13,
+            "lamda12p": 0.14,
+            "lamda23": 0.13184965469208287,
+            "lamda23p": -0.10179114069822925,
+            "lamda3Re": 0.08368703688875163,
+            "lamda3Im": 0.05054893896685599,
+            "lamda31": 0.13184965469208287,
+            "lamda31p": -0.10179114069822925,
+            "lamda33": 0.12886749199352251,
         }
         self.assertEqual(False, bIsBounded(source))
 
@@ -386,21 +386,21 @@ class BmGeneratorUnitTests(TestCase):
             "mu2sq": -11505.594825493996,
             "mu3sq": 7812.5,
             "mu1sq": -11505.594825493996,
-            "lam1Re": 0.1,
-            "lam1Im": 0.0,
-            "lam2Re": 0.010823997158779158,
-            "lam2Im": 0.017584425457946057,
-            "lam11": 0.11,
-            "lam22": 0.12,
-            "lam12": 0.13,
-            "lam12p": 0.14,
-            "lam23": 0.33218995023667736,
-            "lam23p": -0.29472720912675215,
-            "lam3Re": 0.010823997158779158,
-            "lam3Im": 0.017584425457946057,
-            "lam31": 0.33218995023667736,
-            "lam31p": -0.29472720912675215,
-            "lam33": 0.12886749199352251,
+            "lamda1Re": 0.1,
+            "lamda1Im": 0.0,
+            "lamda2Re": 0.010823997158779158,
+            "lamda2Im": 0.017584425457946057,
+            "lamda11": 0.11,
+            "lamda22": 0.12,
+            "lamda12": 0.13,
+            "lamda12p": 0.14,
+            "lamda23": 0.33218995023667736,
+            "lamda23p": -0.29472720912675215,
+            "lamda3Re": 0.010823997158779158,
+            "lamda3Im": 0.017584425457946057,
+            "lamda31": 0.33218995023667736,
+            "lamda31p": -0.29472720912675215,
+            "lamda33": 0.12886749199352251,
         }
         self.assertEqual(True, bIsBounded(source))
 
@@ -425,21 +425,21 @@ class BmGeneratorUnitTests(TestCase):
                 "mu1sq": -9572.921254799061,
             },
             "couplingValues": {
-                "lam1Re": 0.1,
-                "lam1Im": 0,
-                "lam2Re": -0.08646892283299933,
-                "lam2Im": 0.0024653454694036642,
-                "lam11": 0.11,
-                "lam22": 0.12,
-                "lam12": 0.13,
-                "lam12p": 0.14,
-                "lam23": 0.05327468098550607,
-                "lam23p": 0.2749344421058253,
-                "lam3Re": -0.08646892283299933,
-                "lam3Im": 0.0024653454694036642,
-                "lam31": 0.05327468098550607,
-                "lam31p": 0.2749344421058253,
-                "lam33": 0.12927959478844356,
+                "lamda1Re": 0.1,
+                "lamda1Im": 0,
+                "lamda2Re": -0.08646892283299933,
+                "lamda2Im": 0.0024653454694036642,
+                "lamda11": 0.11,
+                "lamda22": 0.12,
+                "lamda12": 0.13,
+                "lamda12p": 0.14,
+                "lamda23": 0.05327468098550607,
+                "lamda23p": 0.2749344421058253,
+                "lamda3Re": -0.08646892283299933,
+                "lamda3Im": 0.0024653454694036642,
+                "lamda31": 0.05327468098550607,
+                "lamda31p": 0.2749344421058253,
+                "lamda33": 0.12927959478844356,
             },
         }
         source = (
