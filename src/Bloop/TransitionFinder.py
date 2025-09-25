@@ -143,7 +143,7 @@ class TrackVEV:
         ## --- SM fermion and gauge boson masses---
         ## How get g3 from PDG??
         paramsDict = {
-            "yt3": sqrt(2.0) * mTop / higgsVEV,
+            "yt": sqrt(2.0) * mTop / higgsVEV,
             "g1": 2.0 * sqrt(mZ**2 - mW**2) / higgsVEV,  ## U(1)
             "g2": 2.0 * mW / higgsVEV,  ## SU(2)
             "g3": sqrt(0.1183 * 4.0 * pi),  ## SU(3)
