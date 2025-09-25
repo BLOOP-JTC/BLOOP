@@ -3,6 +3,8 @@ from sympy.parsing.mathematica import parse_mathematica
 from numpy import euler_gamma, pi
 from pathlib import Path
 from importlib.resources import files
+import unicodedata
+import re
 
 from Veff_generation import generate_veff_module, compile_veff_submodule
 
@@ -15,10 +17,20 @@ def getLinesJSON(relativePathToResource):
         return json.load(fp)
 
 
-def replaceGreekSymbols(string: str) -> str:
-    ## TODO use unicodedata package here to do magic.
-    # Or bully DRalgo people to removing greek symbols
-    return string.replace("\u03bb", "lam").replace("\u03bc", "mu")
+def replaceGreekSymbols(string):
+    def replaceGreekCharacter(match):
+        characterData = unicodedata.name(match.group(0)).split()
+        
+        if 'SMALL' in characterData:
+            return characterData[-1].lower()
+        
+        elif 'CAPITAL' in characterData:
+            return characterData[-1].capitalize()
+    
+    greekCharacters = r'[\u0391-\u03A9\u03B1-\u03C9]'
+    result = re.sub(greekCharacters, replaceGreekCharacter, string)
+    
+    return result
 
 
 def replaceSymbolsConst(string):
