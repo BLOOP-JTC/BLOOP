@@ -33,6 +33,11 @@ def generate_veff_module(args, allSymbols):
             allSymbols
         )
     
+    generateDiagonalizeSubModule(
+        os.path.join(module_dir, "eigen.pyx"), 
+        allSymbols,
+    )
+
     generateVeffModule(
         os.path.join(module_dir, 'veff.py'), 
         loopOrder, 
@@ -58,7 +63,8 @@ def generate_veff_module(args, allSymbols):
             {% if args.loopOrder >= 2 %}
             extensions.append(Extension("nnlo", ["nnlo.pyx"]))
             {% endif %}
-            
+            extensions.append(Extension("eignen", ["eigen.pyx"]))
+
             setup(
                 name="Veff_cython",
                 ext_modules=cythonize(
@@ -80,6 +86,10 @@ def generateVeffModule(filename, loopOrder, allSymbols):
         {%- if loopOrder > 1 %}
         from .nnlo import nnlo
         {%- endif %}
+        from .eigen import eigen
+
+        def eigen(*args):
+            return eigen(args)
         
         def Veff(
         {%- for symbol in allSymbols %}
@@ -111,6 +121,7 @@ def generateVeffModule(filename, loopOrder, allSymbols):
         {%- endif %}
         """)).render(loopOrder=loopOrder, allSymbols=allSymbols))
      
+
 def generateVeffSubModule(name, moduleName, veffFp, allSymbols):
     # Creates a cython module with that computes an order of Veff
     with open(moduleName, 'w') as file:
@@ -144,6 +155,28 @@ def generateVeffSubModule(name, moduleName, veffFp, allSymbols):
                 return a
             """)).render(name=name, allSymbols=allSymbols, opsAndExpressions=np.transpose(mutliLineExpression(veffFp))))
 
+
+def generateDiagonalizeSubModule(moduleName, allSymbols):
+    # Creates a cython module with that computes an order of Veff
+    with open(moduleName, 'w') as file:
+    
+        file.write(Environment().from_string(dedent("""\
+            #cython: cdivision=False
+            from libc.complex cimport csqrt
+            from libc.complex cimport clog
+
+            from  scipy.linalg import lapack
+            
+            def eigen(
+            {%- for symbol in allSymbols %}
+                double complex& {{ symbol }},
+            {%- endfor %}
+                ):
+                scalarMassMatrix = [[lamda11*v1**2 + lamda12*v2**2/2 + lamda31*v3**2/2 - mu1sq, lamda3Im*v1*v3, 0, v1*v3*(lamda31p/2 + lamda3Re), -mu12sqRe + v1*v2*(lamda12p/2 + lamda1Re), -lamda1Im*v1*v2 + mu12sqIm], [lamda3Im*v1*v3, lamda23*v2**2/2 + lamda31*v1**2/2 + lamda33*v3**2 - mu3sq, v1*v3*(lamda31p/2 + lamda3Re), 0, -lamda2Im*v2*v3, v2*v3*(lamda23p/2 + lamda2Re)], [0, v1*v3*(lamda31p/2 + lamda3Re), lamda11*v1**2 + lamda12*v2**2/2 + lamda31*v3**2/2 - mu1sq, -lamda3Im*v1*v3, lamda1Im*v1*v2 - mu12sqIm, -mu12sqRe + v1*v2*(lamda12p/2 + lamda1Re)], [v1*v3*(lamda31p/2 + lamda3Re), 0, -lamda3Im*v1*v3, lamda23*v2**2/2 + lamda31*v1**2/2 + lamda33*v3**2 - mu3sq, v2*v3*(lamda23p/2 + lamda2Re), lamda2Im*v2*v3], [-mu12sqRe + v1*v2*(lamda12p/2 + lamda1Re), -lamda2Im*v2*v3, lamda1Im*v1*v2 - mu12sqIm, v2*v3*(lamda23p/2 + lamda2Re), lamda12*v1**2/2 + lamda22*v2**2 + lamda23*v3**2/2 - mu2sq, 0], [-lamda1Im*v1*v2 + mu12sqIm, v2*v3*(lamda23p/2 + lamda2Re), -mu12sqRe + v1*v2*(lamda12p/2 + lamda1Re), lamda2Im*v2*v3, 0, lamda12*v1**2/2 + lamda22*v2**2 + lamda23*v3**2/2 - mu2sq]]
+                eigenValues, eigenVectors, _ = lapack.dsyevd(scalarMassMatrix, compute_v = 1)
+
+                return eigenValues, eigenVectors
+            """)).render(allSymbols=allSymbols))
 
 
 def mutliLineExpression(filePointer):
