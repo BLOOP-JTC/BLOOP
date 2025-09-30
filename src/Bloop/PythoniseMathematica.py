@@ -164,7 +164,7 @@ def pythoniseMathematica(args):
         },
         
         "scalarMassMatrices": {
-            "expressions":pythoniseExpressionSystem(getLines(args.scalarMassMatrixFile)),
+            "expressions": pythoniseExpressionSystem(getLines(args.scalarMassMatrixFile)),
             "fileName": args.scalarMassMatrixFile
         },
         
@@ -195,7 +195,13 @@ def pythoniseMathematica(args):
     )
     
     if args.bCython:
-        generate_veff_module(args, allSymbols)
+        generate_veff_module(
+            args, 
+            allSymbols, 
+            args.scalarMassMatrixFile, 
+            expressionDict["scalarMassNames"]["scalarMassNames"],
+        )
+
         compile_veff_submodule(args)    
     
     else:

@@ -5,7 +5,12 @@ import numpy as np
 
 import Bloop.PythoniseMathematica as PythoniseMathematica
 
-def generate_veff_module(args, allSymbols):
+def generate_veff_module(
+    args, 
+    allSymbols, 
+    scalarMassMatrixFile,
+    scalarMassNames,
+):
     
     parent_dir = os.path.dirname(os.getcwd())
     data_dir   = os.path.join(parent_dir, 'src', 'Bloop')
@@ -36,6 +41,8 @@ def generate_veff_module(args, allSymbols):
     generateDiagonalizeSubModule(
         os.path.join(module_dir, "eigen.pyx"), 
         allSymbols,
+        os.path.join(data_dir, scalarMassMatrixFile),
+        scalarMassNames,
     )
 
     generateVeffModule(
@@ -156,7 +163,15 @@ def generateVeffSubModule(name, moduleName, veffFp, allSymbols):
             """)).render(name=name, allSymbols=allSymbols, opsAndExpressions=np.transpose(mutliLineExpression(veffFp))))
 
 
-def generateDiagonalizeSubModule(moduleName, allSymbols):
+def generateDiagonalizeSubModule(
+    moduleName, 
+    allSymbols, 
+    scalarMassMatrixFile, 
+    scalarMassNames,
+):
+    with open(scalarMassMatrixFile) as file:
+        scalarMassMatrices = [convertMatrixToCythonSyntax(line) for line in file.readlines()]
+
     # Creates a cython module with that computes an order of Veff
     with open(moduleName, 'w') as file:
     
@@ -168,7 +183,7 @@ def generateDiagonalizeSubModule(moduleName, allSymbols):
             {%- for symbol in allSymbols %}
                 double complex {{ symbol }},
             {%- endfor %}
-                ):
+            ):
                 
                 return _eigen(
             {%- for symbol in allSymbols %}
@@ -180,12 +195,22 @@ def generateDiagonalizeSubModule(moduleName, allSymbols):
             {%- for symbol in allSymbols %}
                 double complex {{ symbol }},
             {%- endfor %}
-                ):
-                scalarMassMatrix = [[lamda11*v1**2 + lamda12*v2**2/2 + lamda31*v3**2/2 - mu1sq, lamda3Im*v1*v3, 0, v1*v3*(lamda31p/2 + lamda3Re), -mu12sqRe + v1*v2*(lamda12p/2 + lamda1Re), -lamda1Im*v1*v2 + mu12sqIm], [lamda3Im*v1*v3, lamda23*v2**2/2 + lamda31*v1**2/2 + lamda33*v3**2 - mu3sq, v1*v3*(lamda31p/2 + lamda3Re), 0, -lamda2Im*v2*v3, v2*v3*(lamda23p/2 + lamda2Re)], [0, v1*v3*(lamda31p/2 + lamda3Re), lamda11*v1**2 + lamda12*v2**2/2 + lamda31*v3**2/2 - mu1sq, -lamda3Im*v1*v3, lamda1Im*v1*v2 - mu12sqIm, -mu12sqRe + v1*v2*(lamda12p/2 + lamda1Re)], [v1*v3*(lamda31p/2 + lamda3Re), 0, -lamda3Im*v1*v3, lamda23*v2**2/2 + lamda31*v1**2/2 + lamda33*v3**2 - mu3sq, v2*v3*(lamda23p/2 + lamda2Re), lamda2Im*v2*v3], [-mu12sqRe + v1*v2*(lamda12p/2 + lamda1Re), -lamda2Im*v2*v3, lamda1Im*v1*v2 - mu12sqIm, v2*v3*(lamda23p/2 + lamda2Re), lamda12*v1**2/2 + lamda22*v2**2 + lamda23*v3**2/2 - mu2sq, 0], [-lamda1Im*v1*v2 + mu12sqIm, v2*v3*(lamda23p/2 + lamda2Re), -mu12sqRe + v1*v2*(lamda12p/2 + lamda1Re), lamda2Im*v2*v3, 0, lamda12*v1**2/2 + lamda22*v2**2 + lamda23*v3**2/2 - mu2sq]]
-                
-                eigenValues, eigenVectors, _ = lapack.dsyevd(scalarMassMatrix, compute_v = 1)
-                return eigenValues, eigenVectors
-            """)).render(allSymbols=allSymbols))
+            ):
+
+            {%- for scalarMassMatrix in scalarMassMatrices %}
+                scalarMassMatrix{{ loop.index0}} = {{ scalarMassMatrix }}
+                eigenValues{{ loop.index0 }}, eigenVectors{{ loop.index0 }}, _ = lapack.dsyevd(scalarMassMatrix{{ loop.index0 }}, compute_v = 1)
+            {%- endfor %}
+
+            {% set scalarMassMatrixLength = (scalarMassNames | length) / (scalarMassMatrices | length) | int %}
+            {%- for massSymbol in scalarMassNames %}
+                {{ massSymbol }} = eigenValues{{ (loop.index0 / scalarMassMatrixLength) | int }}[{{ (loop.index0 % scalarMassMatrixLength) | int }}]
+            {%- endfor %}
+            """)).render(
+                allSymbols=allSymbols, 
+                scalarMassMatrices = scalarMassMatrices,
+                scalarMassNames = scalarMassNames,
+            ))
 
 
 def mutliLineExpression(filePointer):
@@ -212,16 +237,21 @@ def mutliLineExpression(filePointer):
             if line in ["+ ", "- "]:
                 operations.append("+=" if line == "+ " else "-=")
             else:
-                expressions.append(convert_to_cython_syntax(line))
+                expressions.append(convertToCythonSyntax(line))
             start = i + 1
     
     # Any remaining characters should just be expressions
     if start < len(veff):
         line = veff[start:]
-        expressions.append(convert_to_cython_syntax(line))
+        expressions.append(convertToCythonSyntax(line))
     return operations, expressions
+
+def convertMatrixToCythonSyntax(term):
+    term = convertToCythonSyntax(term)
+    term = term.replace('{', '[')
+    return term.replace('}', ']')
     
-def convert_to_cython_syntax(term):
+def convertToCythonSyntax(term):
     term = term.replace('Sqrt', 'csqrt')
     term = term.replace('Log', 'clog')
     term = term.replace('[', '(')
