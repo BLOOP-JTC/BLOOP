@@ -151,15 +151,14 @@ sqrtSubRules[ruleList_]:=Module[{newRules},
 
 
 (** Construct a table of symbols of the form <symbol><idx in list (starting at 0 to match python)>
-<idx> is zero padded to unique symbols and constant symbol length (not sure how big of deal this is)
 **)
 
-toIndexedSymbol[symbol_, indices_List, indexLength_] := 
-  ToExpression[ToString[symbol] <> StringJoin[
-    Map[With[{n = indexLength - IntegerLength[#]}, 
-        If[n < 1, ToString[#], StringJoin@ConstantArray["0", n] <> ToString[#]]
-        ] &, indices]
-  ]];
+toIndexedSymbol[symbol_, indices_List] := 
+  ToExpression[ToString[symbol] <> StringJoin[ToString /@ (indices-1)]];
+
+
+blockSize = 12;
+rotUpperLeft = Table[ toIndexedSymbol[ "a", {i, j}], {i, 1, 2}, {j, 1, 2}]
 
 
 (* Generate a json from a matrix that has elements as keys and 
@@ -170,3 +169,13 @@ matrixToJSON[mat_] := ExportString[
   "JSON"
 ]
 
+
+
+toIndexedSymbols[symbol_, ranges__] := 
+  Module[{rangeList = List@ranges},
+    Array[
+      ToExpression[ToString[symbol] <> StringJoin[ToString /@ Flatten[{##}]]] &,
+      rangeList[[All, 2]] - rangeList[[All, 1]] + 1,
+      rangeList[[All, 1]]
+    ]
+  ];
