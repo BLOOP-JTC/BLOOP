@@ -472,5 +472,5 @@ extractSymbols[allSoftScaleParamsSqrtSuffixFree]["RHS"],
 extractSymbols[allSoftScaleParamsSqrtSuffixFree]["LHS"],
 extractSymbols[betaFunctions4DUnsquared]["RHS"],
 extractSymbols[betaFunctions4DUnsquared]["LHS"]
-]]
+]];
 exportUTF8[variables<>"/allSymbols.json",allSymbols];
