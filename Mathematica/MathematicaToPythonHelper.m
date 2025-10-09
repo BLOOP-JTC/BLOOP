@@ -150,17 +150,6 @@ sqrtSubRules[ruleList_]:=Module[{newRules},
 ];
 
 
-(** Construct a table of symbols of the form <symbol><idx in list (starting at 0 to match python)>
-**)
-
-toIndexedSymbol[symbol_, indices_List] := 
-  ToExpression[ToString[symbol] <> StringJoin[ToString /@ (indices-1)]];
-
-
-blockSize = 12;
-rotUpperLeft = Table[ toIndexedSymbol[ "a", {i, j}], {i, 1, 2}, {j, 1, 2}]
-
-
 (* Generate a json from a matrix that has elements as keys and 
 index of the elements as value i.e. "ele": "idx1,idx2"*)
 matrixToJSON[mat_] := ExportString[
