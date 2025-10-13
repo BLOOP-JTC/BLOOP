@@ -217,7 +217,7 @@ from unittest import TestCase
 
 class PythoniseMathematicaUnitTests(TestCase):
     def test_replaceGreekSymbols(self):
-        reference = ["lam", "lam lam", "mu", "mu mu", "lam mu", "mu lam"]
+        reference = ["lamda", "lamda lamda", "mu", "mu mu", "lamda mu", "mu lamda"]
         source = ["λ", "λ λ", "μ", "μ μ", "λ μ", "μ λ"]
 
         self.assertEqual(
@@ -235,9 +235,9 @@ class PythoniseMathematicaUnitTests(TestCase):
 
     def test_pythoniseExpression(self):
         reference = {
-            "expression": "0.07957747154594767*sqrt(lam) + log(mssq)",
+            "expression": "0.07957747154594767*sqrt(lamda) + log(mssq)",
             "identifier": "Identifier",
-            "symbols": ["lam", "mssq"],
+            "symbols": ["lamda", "mssq"],
         }
 
         source = "Identifier -> Sqrt[λ] / (4 * Pi) + Log[mssq]"
@@ -247,19 +247,19 @@ class PythoniseMathematicaUnitTests(TestCase):
     def test_paseExpressionSystem(self):
         reference = [
             {
-                "expression": "0.07957747154594767*sqrt(lam) + log(mssq)",
+                "expression": "0.07957747154594767*sqrt(lamda) + log(mssq)",
                 "identifier": "Identifier",
-                "symbols": ["lam", "mssq"],
+                "symbols": ["lamda", "mssq"],
             },
             {
-                "expression": "0.07957747154594767*sqrt(lam) + log(mssq)",
+                "expression": "0.07957747154594767*sqrt(lamda) + log(mssq)",
                 "identifier": "Identifier",
-                "symbols": ["lam", "mssq"],
+                "symbols": ["lamda", "mssq"],
             },
             {
-                "expression": "0.07957747154594767*sqrt(lam) + log(mssq)",
+                "expression": "0.07957747154594767*sqrt(lamda) + log(mssq)",
                 "identifier": "Identifier",
-                "symbols": ["lam", "mssq"],
+                "symbols": ["lamda", "mssq"],
             },
         ]
 
