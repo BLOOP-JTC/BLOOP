@@ -4,6 +4,7 @@ from numba import njit
 from itertools import chain
 import nlopt
 from dataclasses import dataclass, InitVar
+from .Veff import eigen
 
 @njit
 def diagonalizeNumba(matrices, matrixNumber, matrixSize, T):
@@ -159,9 +160,12 @@ class EffectivePotential:
             for symbol, indices in self.scalarRotationMatrix.items()
         }
 
-        return params3D | {
-            name: float(msq) for name, msq in zip(self.scalarMassNames, chain(*subEigenValues))
-        }
+        params3D = [params3D[key] for key in self.allSymbols]
+        eigen(params3D)
+        return params3D
+        #return params3D | {
+        #    name: float(msq) for name, msq in zip(self.scalarMassNames, chain(*subEigenValues))
+        #}
 
     ##Jasmine plotting tools
     def plotPot(self, T, params3D, linestyle, v3Min, potMin, v3Max):

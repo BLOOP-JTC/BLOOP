@@ -93,10 +93,10 @@ def generateVeffModule(filename, loopOrder, allSymbols):
         {%- if loopOrder > 1 %}
         from .nnlo import nnlo
         {%- endif %}
-        from .eigen import eigen
+        from .eigen import eigen as _eigen
 
-        def eigen(*args):
-            return eigen(args)
+        def eigen(args):
+            return _eigen(args)
         
         def Veff(
         {%- for symbol in allSymbols %}
@@ -176,26 +176,27 @@ def generateDiagonalizeSubModule(
     with open(moduleName, 'w') as file:
     
         file.write(Environment().from_string(dedent("""\
-
             from  scipy.linalg import lapack
             
-            cpdef double complex eigen(
+            cpdef void eigen(parameters):
             {%- for symbol in allSymbols %}
-                double complex {{ symbol }},
+                cdef double complex {{ symbol }} = parameters[{{ loop.index0 }}]
             {%- endfor %}
-            ):
-                
-                return _eigen(
+
+                _eigen(
             {%- for symbol in allSymbols %}
-                    {{ symbol }},
+                    &{{ symbol }},
             {%- endfor %}
                 )
             
-            cdef double complex _eigen(
+            cdef void _eigen(
             {%- for symbol in allSymbols %}
-                double complex {{ symbol }},
+                double complex* _{{ symbol }},
             {%- endfor %}
             ):
+            {%- for symbol in allSymbols %}
+                cdef double complex {{ symbol }} = _{{ symbol }}[0]
+            {%- endfor %}
 
             {%- for scalarMassMatrix in scalarMassMatrices %}
                 scalarMassMatrix{{ loop.index0}} = {{ scalarMassMatrix }}
