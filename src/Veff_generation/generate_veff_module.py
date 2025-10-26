@@ -94,6 +94,7 @@ def generateVeffModule(filename, loopOrder, allSymbols):
         from .nnlo import nnlo
         {%- endif %}
         from .eigen import eigen as _eigen
+        import numpy
 
         def eigen(args):
             return _eigen(args)
@@ -178,24 +179,24 @@ def generateDiagonalizeSubModule(
         file.write(Environment().from_string(dedent("""\
             from  scipy.linalg import lapack
             
-            cpdef void eigen(parameters):
+            cpdef void eigen(complex [:] parameters):
             {%- for symbol in allSymbols %}
-                cdef double {{ symbol }} = parameters[{{ loop.index0 }}]
+                cdef double complex * {{ symbol }} = &parameters[{{ loop.index0 }}]
             {%- endfor %}
 
                 _eigen(
             {%- for symbol in allSymbols %}
-                    &{{ symbol }},
+                    {{ symbol }},
             {%- endfor %}
                 )
-            
+
             cdef void _eigen(
             {%- for symbol in allSymbols %}
-                double * _{{ symbol }},
+                double complex * _{{ symbol }},
             {%- endfor %}
             ):
             {%- for symbol in allSymbols %}
-                cdef double {{ symbol }} = _{{ symbol }}[0]
+                cdef double {{ symbol }} = _{{ symbol }}[0].real
             {%- endfor %}
 
             {%- for scalarMassMatrix in scalarMassMatrices %}
@@ -205,7 +206,7 @@ def generateDiagonalizeSubModule(
 
             {% set scalarMassMatrixLength = (scalarMassNames | length) / (scalarMassMatrices | length) | int %}
             {%- for massSymbol in scalarMassNames %}
-                {{ massSymbol }} = eigenValues{{ (loop.index0 / scalarMassMatrixLength) | int }}[{{ (loop.index0 % scalarMassMatrixLength) | int }}]
+                _{{ massSymbol }}[0] = eigenValues{{ (loop.index0 / scalarMassMatrixLength) | int }}[{{ (loop.index0 % scalarMassMatrixLength) | int }}]
             {%- endfor %}
             """)).render(
                 allSymbols=allSymbols, 

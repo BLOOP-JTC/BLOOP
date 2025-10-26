@@ -160,7 +160,7 @@ class EffectivePotential:
             for symbol, indices in self.scalarRotationMatrix.items()
         }
 
-        params3D = [params3D[key] for key in self.allSymbols]
+        params3D = np.array([params3D[key] for key in self.allSymbols])
         eigen(params3D)
         return params3D
         #return params3D | {
