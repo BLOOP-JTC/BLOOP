@@ -180,7 +180,7 @@ def generateDiagonalizeSubModule(
             
             cpdef void eigen(parameters):
             {%- for symbol in allSymbols %}
-                cdef double complex {{ symbol }} = parameters[{{ loop.index0 }}]
+                cdef double {{ symbol }} = parameters[{{ loop.index0 }}]
             {%- endfor %}
 
                 _eigen(
@@ -191,11 +191,11 @@ def generateDiagonalizeSubModule(
             
             cdef void _eigen(
             {%- for symbol in allSymbols %}
-                double complex* _{{ symbol }},
+                double * _{{ symbol }},
             {%- endfor %}
             ):
             {%- for symbol in allSymbols %}
-                cdef double complex {{ symbol }} = _{{ symbol }}[0]
+                cdef double {{ symbol }} = _{{ symbol }}[0]
             {%- endfor %}
 
             {%- for scalarMassMatrix in scalarMassMatrices %}

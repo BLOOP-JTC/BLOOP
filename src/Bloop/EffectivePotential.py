@@ -120,8 +120,8 @@ class EffectivePotential:
         return bestResult[0], self.evaluatePotential(bestResult[0], T, params3D)
 
     def evaluatePotential(self, fields, T, params3D):
-        paramsDict = self.computeMasses(fields, T, params3D)
-        params = [paramsDict[key] if key in paramsDict else 0 for key in self.allSymbols]
+        params = self.computeMasses(fields, T, params3D)
+        #params = [paramsDict[key] if key in paramsDict else 0 for key in self.allSymbols]
 
         if self.veffArray:
             return sum(self.veffArray.evaluateUnordered(params))
