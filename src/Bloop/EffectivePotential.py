@@ -66,7 +66,7 @@ class EffectivePotential:
         verbose,
         nloptInst,
         vectorMassesSquared,
-        vectorShortHands,
+        vectorShorthands,
         scalarPermutationMatrix,
         scalarMassMatrices,
         scalarRotationMatrix,
@@ -88,7 +88,7 @@ class EffectivePotential:
         )
 
         self.vectorMassesSquared = vectorMassesSquared
-        self.vectorShortHands = vectorShortHands
+        self.vectorShorthands = vectorShorthands
         self.scalarMassMatrices = scalarMassMatrices
         self.scalarRotationMatrix = scalarRotationMatrix
 
@@ -132,8 +132,8 @@ class EffectivePotential:
         for i, value in enumerate(fields):
             params3D[self.allSymbols.index(self.fieldNames[i])] = value
 
-        params3D = self.vectorShortHands.evaluate(params3D)
-        params3D = self.vectorMassesSquared.evaluate(params3D)
+        #params3D = self.vectorShorthands.evaluate(params3D)
+        #params3D = self.vectorMassesSquared.evaluate(params3D)
         eigen(params3D)
         
         return params3D

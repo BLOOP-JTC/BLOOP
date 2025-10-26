@@ -147,14 +147,14 @@ def pythoniseMathematica(args):
             "fileName": args.softToUltraSoftFile,
         },
         "vectorMassesSquared": {
-            "expressions": pythoniseExpressionSystemArray(
-                getLines(args.vectorMassesSquaredFile), allSymbols
+            "expressions": pythoniseExpressionSystem(
+                getLines(args.vectorMassesSquaredFile)
             ),
             "fileName": args.vectorMassesSquaredFile,
         },
-        "vectorShortHands": {
-            "expressions": pythoniseExpressionSystemArray(
-                getLines(args.vectorShortHandsFile), allSymbols
+        "vectorShorthands": {
+            "expressions": pythoniseExpressionSystem(
+                getLines(args.vectorShortHandsFile)
             ),
             "fileName": args.vectorShortHandsFile,
         },
@@ -202,6 +202,8 @@ def pythoniseMathematica(args):
             expressionDict["scalarMassNames"]["scalarMassNames"],
             args.scalarPermutationMatrixFile, 
             args.scalarRotationMatrixFile, 
+            expressionDict["vectorMassesSquared"]["expressions"],
+            expressionDict["vectorShorthands"]["expressions"],
         )
 
         compile_veff_submodule(args)    

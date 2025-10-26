@@ -13,6 +13,8 @@ def generate_veff_module(
     scalarMassNames,
     scalarPermutationMatrixFile,
     scalarRotationMatrixFile,
+    vectorMasses,
+    vectorShorthands,
 ):
     
     parent_dir = os.path.dirname(os.getcwd())
@@ -48,6 +50,8 @@ def generate_veff_module(
         scalarMassNames,
         os.path.join(data_dir, scalarPermutationMatrixFile),
         os.path.join(data_dir, scalarRotationMatrixFile),
+        vectorMasses,
+        vectorShorthands,
     )
 
     generateVeffModule(
@@ -176,6 +180,8 @@ def generateDiagonalizeSubModule(
     scalarMassNames,
     scalarPermutationMatrixFile,
     scalarRotationMatrixFile,
+    vectorMasses,
+    vectorShorthands,
 ):
     with open(scalarMassMatrixFile) as file:
         scalarMassMatrices = [convertMatrixToCythonSyntax(line) for line in file.readlines()]
@@ -188,12 +194,12 @@ def generateDiagonalizeSubModule(
 
     # Creates a cython module with that computes an order of Veff
     with open(moduleName, 'w') as file:
-    
         file.write(Environment().from_string(dedent("""\
             from scipy.linalg import lapack
             from scipy.linalg import block_diag
             from scipy.linalg.blas import dgemm
             from numpy import divide 
+            from numpy import sqrt
 
             cpdef void eigen(complex [:] parameters):
             {%- for symbol in allSymbols %}
@@ -215,8 +221,18 @@ def generateDiagonalizeSubModule(
                 cdef double {{ symbol }} = _{{ symbol }}[0].real
             {%- endfor %}
 
+            {%- for expression in vectorMasses %}
+                {{ expression.identifier }} = {{ expression.expression }}
+                _{{ expression.identifier }}[0] = {{ expression.identifier }}
+            {%- endfor %}
+
+            {%- for expression in vectorShorthands %}
+                {{ expression.identifier }} = {{ expression.expression }}
+                _{{ expression.identifier }}[0] = {{ expression.identifier }}
+            {%- endfor %}
+
             {%- for scalarMassMatrix in scalarMassMatrices %}
-                scalarMassMatrix{{ loop.index0}} = divide({{ scalarMassMatrix }}, (T ** 2))
+                scalarMassMatrix{{ loop.index0 }} = divide({{ scalarMassMatrix -}}, (T ** 2))
                 eigenValues{{ loop.index0 }}, eigenVectors{{ loop.index0 }}, _ = lapack.dsyevd(scalarMassMatrix{{ loop.index0 }}, compute_v = 1)
                 eigenValues{{ loop.index0 }} *= (T ** 2)
             {%- endfor %}
@@ -244,8 +260,9 @@ def generateDiagonalizeSubModule(
                 scalarMassNames = scalarMassNames,
                 scalarPermutationMatrix = scalarPermutationMatrix,
                 scalarRotationMatrix = scalarRotationMatrix,
+                vectorMasses = vectorMasses,
+                vectorShorthands = vectorShorthands,
             ))
-
 
 def mutliLineExpression(filePointer):
     ## Takes an expressions and breaks it down into a mutli line expression

@@ -134,9 +134,9 @@ def setUpTrackVEV(args):
             pythonisedExpressions["vectorMassesSquared"]["fileName"],
         ),
         ParsedExpressionSystemArray(
-            pythonisedExpressions["vectorShortHands"]["expressions"],
+            pythonisedExpressions["vectorShorthands"]["expressions"],
             allSymbols,
-            pythonisedExpressions["vectorShortHands"]["fileName"],
+            pythonisedExpressions["vectorShorthands"]["fileName"],
         ),
         pythonisedExpressions["scalarPermutationMatrix"],
         ParsedExpressionSystem(
