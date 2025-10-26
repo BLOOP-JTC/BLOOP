@@ -10,6 +10,7 @@ def generate_veff_module(
     allSymbols, 
     scalarMassMatrixFile,
     scalarMassNames,
+    scalarPermutationMatrixFile,
 ):
     
     parent_dir = os.path.dirname(os.getcwd())
@@ -43,6 +44,7 @@ def generate_veff_module(
         allSymbols,
         os.path.join(data_dir, scalarMassMatrixFile),
         scalarMassNames,
+        os.path.join(data_dir, scalarPermutationMatrixFile),
     )
 
     generateVeffModule(
@@ -169,15 +171,21 @@ def generateDiagonalizeSubModule(
     allSymbols, 
     scalarMassMatrixFile, 
     scalarMassNames,
+    scalarPermutationMatrixFile,
 ):
     with open(scalarMassMatrixFile) as file:
         scalarMassMatrices = [convertMatrixToCythonSyntax(line) for line in file.readlines()]
+
+    with open(scalarPermutationMatrixFile) as file:
+        scalarPermutationMatrix = convertMatrixToCythonSyntax(file.read())
 
     # Creates a cython module with that computes an order of Veff
     with open(moduleName, 'w') as file:
     
         file.write(Environment().from_string(dedent("""\
-            from  scipy.linalg import lapack
+            from scipy.linalg import lapack
+            from scipy.linalg import block_diag
+            from scipy.linalg.blas import dgemm
             
             cpdef void eigen(complex [:] parameters):
             {%- for symbol in allSymbols %}
@@ -203,6 +211,15 @@ def generateDiagonalizeSubModule(
                 scalarMassMatrix{{ loop.index0}} = {{ scalarMassMatrix }}
                 eigenValues{{ loop.index0 }}, eigenVectors{{ loop.index0 }}, _ = lapack.dsyevd(scalarMassMatrix{{ loop.index0 }}, compute_v = 1)
             {%- endfor %}
+            
+                scalarPermutationMatrix = {{ scalarPermutationMatrix }}
+                eigenVectors = block_diag(
+            {%- for scalarMassMatrix in scalarMassMatrices %}
+                    eigenVectors{{ loop.index0 }},
+            {%- endfor %}
+                )
+
+                dgemm(1, eigenVectors, scalarPermutationMatrix)
 
             {% set scalarMassMatrixLength = (scalarMassNames | length) / (scalarMassMatrices | length) | int %}
             {%- for massSymbol in scalarMassNames %}
@@ -212,6 +229,7 @@ def generateDiagonalizeSubModule(
                 allSymbols=allSymbols, 
                 scalarMassMatrices = scalarMassMatrices,
                 scalarMassNames = scalarMassNames,
+                scalarPermutationMatrix = scalarPermutationMatrix,
             ))
 
 

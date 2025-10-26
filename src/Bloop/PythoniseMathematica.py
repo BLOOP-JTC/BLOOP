@@ -200,6 +200,7 @@ def pythoniseMathematica(args):
             allSymbols, 
             args.scalarMassMatrixFile, 
             expressionDict["scalarMassNames"]["scalarMassNames"],
+            args.scalarPermutationMatrixFile, 
         )
 
         compile_veff_submodule(args)    
