@@ -193,7 +193,8 @@ def generateDiagonalizeSubModule(
             from scipy.linalg import lapack
             from scipy.linalg import block_diag
             from scipy.linalg.blas import dgemm
-            
+            from numpy import divide 
+
             cpdef void eigen(complex [:] parameters):
             {%- for symbol in allSymbols %}
                 cdef double complex * {{ symbol }} = &parameters[{{ loop.index0 }}]
@@ -215,8 +216,9 @@ def generateDiagonalizeSubModule(
             {%- endfor %}
 
             {%- for scalarMassMatrix in scalarMassMatrices %}
-                scalarMassMatrix{{ loop.index0}} = {{ scalarMassMatrix }}
+                scalarMassMatrix{{ loop.index0}} = divide({{ scalarMassMatrix }}, (T ** 2))
                 eigenValues{{ loop.index0 }}, eigenVectors{{ loop.index0 }}, _ = lapack.dsyevd(scalarMassMatrix{{ loop.index0 }}, compute_v = 1)
+                eigenValues{{ loop.index0 }} *= (T ** 2)
             {%- endfor %}
             
                 scalarPermutationMatrix = {{ scalarPermutationMatrix }}

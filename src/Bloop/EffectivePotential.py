@@ -134,9 +134,9 @@ class EffectivePotential:
 
         params3D = self.vectorShortHands.evaluate(params3D)
         params3D = self.vectorMassesSquared.evaluate(params3D)
-        ## diagonalizeScalars doesn't take array (yet) so convert to dict
-        params3D = {key: value for (key, value) in zip(self.allSymbols, params3D)}
-        return self.diagonalizeScalars(params3D, T)
+        eigen(params3D)
+        
+        return params3D
     
     def diagonalizeScalars(self, params3D, T):
         """Finds a rotation matrix that diagonalizes the scalar mass matrix
