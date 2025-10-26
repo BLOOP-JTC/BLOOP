@@ -141,24 +141,24 @@ class EffectivePotential:
     def diagonalizeScalars(self, params3D, T):
         """Finds a rotation matrix that diagonalizes the scalar mass matrix
         and returns a dict with diagonalization-specific params"""
-        subMassMatrix = np.array(self.scalarMassMatrices.evaluate(params3D)).real / T**2
+        #subMassMatrix = np.array(self.scalarMassMatrices.evaluate(params3D)).real / T**2
 
-        subEigenValues, subRotationMatrix = diagonalizeNumba(
-            subMassMatrix, subMassMatrix.shape[0], subMassMatrix.shape[1], T
-        )
+        #subEigenValues, subRotationMatrix = diagonalizeNumba(
+        #    subMassMatrix, subMassMatrix.shape[0], subMassMatrix.shape[1], T
+        #)
 
-        ## If the user permutted the mass matrix in DRalgo we have to unpermute it
-        if len(self.scalarPermutationMatrix) > 0:
-            subRotationMatrix = self.scalarPermutationMatrix @ linalg.block_diag(
-                *subRotationMatrix
-            )
-        else:
-            subRotationMatrix=subRotationMatrix[0]
-            
-        params3D |= {
-            symbol: subRotationMatrix[indices[0], indices[1]]
-            for symbol, indices in self.scalarRotationMatrix.items()
-        }
+        ### If the user permutted the mass matrix in DRalgo we have to unpermute it
+        #if len(self.scalarPermutationMatrix) > 0:
+        #    subRotationMatrix = self.scalarPermutationMatrix @ linalg.block_diag(
+        #        *subRotationMatrix
+        #    )
+        #else:
+        #    subRotationMatrix=subRotationMatrix[0]
+        #    
+        #params3D |= {
+        #    symbol: subRotationMatrix[indices[0], indices[1]]
+        #    for symbol, indices in self.scalarRotationMatrix.items()
+        #}
 
         params3D = np.array([params3D[key] for key in self.allSymbols])
         eigen(params3D)

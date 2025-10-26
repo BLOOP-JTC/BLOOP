@@ -2,6 +2,7 @@ import os
 from textwrap import dedent
 from jinja2 import Environment
 import numpy as np
+import json
 
 import Bloop.PythoniseMathematica as PythoniseMathematica
 
@@ -11,6 +12,7 @@ def generate_veff_module(
     scalarMassMatrixFile,
     scalarMassNames,
     scalarPermutationMatrixFile,
+    scalarRotationMatrixFile,
 ):
     
     parent_dir = os.path.dirname(os.getcwd())
@@ -45,6 +47,7 @@ def generate_veff_module(
         os.path.join(data_dir, scalarMassMatrixFile),
         scalarMassNames,
         os.path.join(data_dir, scalarPermutationMatrixFile),
+        os.path.join(data_dir, scalarRotationMatrixFile),
     )
 
     generateVeffModule(
@@ -172,12 +175,16 @@ def generateDiagonalizeSubModule(
     scalarMassMatrixFile, 
     scalarMassNames,
     scalarPermutationMatrixFile,
+    scalarRotationMatrixFile,
 ):
     with open(scalarMassMatrixFile) as file:
         scalarMassMatrices = [convertMatrixToCythonSyntax(line) for line in file.readlines()]
 
     with open(scalarPermutationMatrixFile) as file:
         scalarPermutationMatrix = convertMatrixToCythonSyntax(file.read())
+
+    with open(scalarRotationMatrixFile) as file:
+        scalarRotationMatrix = json.loads(file.read())
 
     # Creates a cython module with that computes an order of Veff
     with open(moduleName, 'w') as file:
@@ -219,7 +226,11 @@ def generateDiagonalizeSubModule(
             {%- endfor %}
                 )
 
-                dgemm(1, eigenVectors, scalarPermutationMatrix)
+                permutedMatrix = dgemm(1, eigenVectors, scalarPermutationMatrix)
+
+            {%- for symbol, indices in scalarRotationMatrix.items() %}
+                _{{ symbol }}[0] = permutedMatrix[{{ indices[0] }}][{{ indices[1] }}]
+            {%- endfor %}
 
             {% set scalarMassMatrixLength = (scalarMassNames | length) / (scalarMassMatrices | length) | int %}
             {%- for massSymbol in scalarMassNames %}
@@ -230,6 +241,7 @@ def generateDiagonalizeSubModule(
                 scalarMassMatrices = scalarMassMatrices,
                 scalarMassNames = scalarMassNames,
                 scalarPermutationMatrix = scalarPermutationMatrix,
+                scalarRotationMatrix = scalarRotationMatrix,
             ))
 
 
