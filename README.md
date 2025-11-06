@@ -1,6 +1,7 @@
 
 # BLOOP (Beyond one LOOp Phase transition)
 **THIS CODE IS IN ACTIVE DEVELOPMENT, EXPECT BUGS AND FEATURES TO BE CHANGED AND/OR REMOVED. DOUBLE CHECK ANY RESULT FROM THE CODE.**
+
 Version history can be found: https://github.com/JasmineTC/Bloop (currently this version is also more up to date)
 
 Download the code base with a git clone. From this point forward all commands are to be run from inside the Bloop directory
